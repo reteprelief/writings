@@ -14,20 +14,12 @@ Packages identified in fully qualified references must be listed in an *import* 
 Syntax
 ------
 
- AADL\_specification ::=
- { package\_declaration }\ :sup:`+`
- 
- 
- package\_declaration ::=
- **package** *defining*\_package\_name
-
-{ import\_declaration }\ :sup:`\*`
-
-{ package\_content\_declaration }\ :sup:`\*`
-
-[ properties\_subclause ]
-
-**end**  **;**
+| AADL\_specification ::= { package\_declaration }\ :sup:`+`
+| 
+| package\_declaration ::= **package** *defining*\_package\_name
+|   { import\_declaration }\ :sup:`\*`
+|   { package\_content\_declaration }\ :sup:`\*`
+| **end**  **;**
 
 
 package\_name ::=
