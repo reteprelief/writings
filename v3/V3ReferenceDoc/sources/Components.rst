@@ -1,66 +1,54 @@
 Component Classifiers
 =====================
 
- Component classifiers are used to characterize components in an embedded software system architecture. AADL supports three types of component classifiers:
+Component classifiers are used to characterize components in an embedded software system architecture. AADL supports three types of component classifiers:
  
- 1. *Component interface*: a component specification that represents the external interface to a component. It consists of *features* that represent interaction points with other components, 
- *flows* from incoming features to outgoing features, externally visible modes, and property values associated with the component, its features, and flows.
+1. *Component interface*: a component specification that represents the external interface to a component. It consists of *features* that represent interaction points with other components, 
+*flows* from incoming features to outgoing features, externally visible modes, and property values associated with the component, its features, and flows.
  
- 2. *Component implementation*:  a component blue print that represents how a component is realized in terms of interconnected subcomponents. subcomponents represent component instances that are characterized by a component classifier reference. Connections specify flow between features of different subcomponents or a subcomponent feature and its own feature.
- Flow implementations elaborate on a flow from an incoming to an outgoing feature by identifying connections and subcomponents involved in the flow. A component implementation may also specify a binding from an software application component to a platform component.
- A component implementation and its elements can have property values. 
+2. *Component implementation*:  a component blue print that represents how a component is realized in terms of interconnected subcomponents. Subcomponents represent component instances that are characterized by a component classifier reference. Connections specify flow between features of different subcomponents or a subcomponent feature and its own feature.
+Flow implementations elaborate on a flow from an incoming to an outgoing feature by identifying connections and subcomponents involved in the flow. A component implementation may also specify a binding from an software application component to a platform component.
+Bindings specify the binding of a software subcomponent to a platform component. A component implementation and its elements can have property values. 
  
- 3. *Component configuration*: a specific set of component implementations or configurations chosen for subcomponents including nested subcomponents as well as properties and bindings relevant to the configuration. 
- Once configured a subcomponent architecture cannot be changed, only annotated with additional property values. Configurations can be parameterized in that users of such configurations can only provide actuals for the specified parameters.
+3. *Component configuration*: a specific set of component implementations or configurations chosen for subcomponents including nested subcomponents as well as properties and bindings relevant to the configuration. 
+Once configured a subcomponent architecture cannot be changed, only annotated with additional property values. Configurations can be parameterized in that users of such configurations can only provide actuals for the specified parameters.
  
-  A component can be defined as a generic component (using the keyword **abstract**), or it can represent a specific software or hardware entity through one of the following component *categories*: 
-  *thread*, *thread group*, *process*, *data,*
+A component has a *component category*. It can be defined as a generic component (using the keyword **component**), or it can represent a specific software or hardware entity through one of the following component *categories*: 
+*thread*, *thread group*, *process*, *data,*
 *subprogram*, *subprogram group*, 
 *memory*, *bus*, *virtual bus*, *processor*, *virtual processor*,
 *device*, and *system*. The specific meaning of each of the component categories are described in later sections. 
 
-
- A feature represents an interaction point of a component that is visible to
-other components. Connections between features of different components represent exchange of control and data. 
-Features include ports to support
-directional flow of data and control, shared data access, and remote procedure call interactions. Features also represent binding points between components in an application system and components in the hardware platform. 
-Features also represent access to buses for modeling hardware interconnections via buses.
-
-
- A component can have multiple implementations. They represent variants of a component that adhere to the
+A component can have multiple implementations. They represent variants of a component that adhere to the
 same interface, but may have different properties.  
 
- Component interfaces, implementations, and configurations can be declared in terms of other component types, implementations, and configurations respectively, i.e., they can **extend** an existing classifier by adding or refining elements of the classifier. 
+Component interfaces, implementations, and configurations can be declared in terms of other component types, implementations, and configurations respectively, i.e., they can *extend* an existing classifier by adding or refining elements of the classifier. 
 This permits partially complete component classifier declarations to act as templates. Such templates can
 represent a common basis for the evolution of a family of related
 component classifiers.
 
- Component interfaces and configurations can also be specified as composition of multiple existing component types or configurations respectively.
+Component interfaces and configurations can also be specified as *composition* of multiple existing component types or configurations respectively.
 
-This standard defines basic concepts and requirements for
-determining compliance between a component specification via classifier and an
-actual component. This standard does not restrict the lower-level
-representation(s) used for software components, e.g., binary images,
-conventional programming languages, application modeling languages,
-nor does it restrict the lower-level representation(s) used for
-physical hardware component designs, e.g., circuit diagrams,
-hardware behavioral descriptions.
+ This standard defines basic concepts and requirements for determining compliance between a component specification via classifier and an
+ actual component. This standard does not restrict the lower-level representation(s) used for software components, e.g., binary images,
+ conventional programming languages, application modeling languages, nor does it restrict the lower-level representation(s) used for
+ physical hardware component designs, e.g., circuit diagrams,hardware behavioral descriptions.
 
 Component Interfaces
 ---------------
 
- A component interface specifies the external interface of a component
+A component interface specifies the external interface of a component
 that its implementations satisfy. It consists of features, flows, modes, and associated property values.
 
- Features of a component represent interaction points with other components. Features are incoming and outgoing ports, required and provided access to data components, required and provided remote subprogram call, required and provided bus access, binding points between application and platform components, and named interfaces representing collections of features defined in a separate component type.
+Features of a component represent interaction points with other components. Features are incoming and outgoing ports, required and provided access to data components, required and provided remote subprogram call, required and provided bus access, binding points between application and platform components, and named interfaces representing collections of features defined in a separate component type.
 
- Flow specifications represent information flow from its incoming features to its outgoing features. The realization of each flow is specified in detail in each component implementation.
+Flow specifications represent information flow from its incoming features to its outgoing features. The realization of each flow is specified in detail in each component implementation.
 
- Component interfaces may declare modes and mode transitions. This allows users to characterize modal components and externally triggering mode transitions. 
+Component interfaces may declare modes and mode transitions. This allows users to characterize modal components and externally triggering mode transitions. 
 Mode-specific property values can be associated with the component interface, its
 features, and its flows.  
 
- Component interfaces may include annex subclauses that provide annotations expressed in specific annex sublanguages, e.g., fault behavior expressed in the Error Model V2 (EMV2) annex notation.
+Component interfaces may include annex subclauses that provide annotations expressed in specific annex sublanguages, e.g., fault behavior expressed in the Error Model V2 (EMV2) annex notation.
 
 *Syntax*
 
@@ -68,25 +56,14 @@ component\_interface ::=
 
 component\_category **interface** *defining\_component\_interface\_*identifier **is**
 
-{ feature \| flow\_spec \| mode \| required\_mode \| mode\_transition \| annex\_subclause \| property\_association }\ :sup:`\*`
+{ feature \| flow\_spec \| mode_declaration \| annex\_subclause \| property\_association }\ :sup:`\*`
 
 **end** **;**
-
-// with section labels
-// [ features\_subclause ]
-// 
-// [ flow\_specifications\_subclause ]
-// 
-// [ modes\_subclause ]
-// 
-// [ properties\_subclause ]
-// 
-// { annex\_subclause }\ :sup:`\*`
 
 
 component\_category ::=
 
-abstract\_component\_category
+generic\_component\_category
 
 \| software\_category
 
@@ -95,62 +72,45 @@ abstract\_component\_category
 \| composite\_category
 
 abstract\_component\_category ::= 
-
-**abstract**
+**component**
 
 software\_category ::= 
-
 **data** \| **subprogram** \| **subprogram group** \|
-
 **thread** \| **thread group** \| **process **
 
 execution\_platform\_category ::=
-
-**memory** \| **processor** \| **bus** \| **device** \| **virtual processor** \| **virtual bus**
+**memory** \| **processor** \| **bus** \| **device** \| **virtual processor** \| **virtual bus** \| **virtual memory** \| **virtual device**
 
 composite\_category ::= 
-
 **system**
-
-// features\_subclause ::=
-// 
-// **features** { feature }\ :sup:`+`
-// 
-// flow\_specifications\_subclause ::=
-// 
-// **flows** { flow\_spec }\ :sup:`+`
-// 
-// modes\_subclause ::=
-// 
-// **modes** { mode \| requires_mode \| mode\_transition  }\ :sup:`+`
 
 
 *Naming Rules*
 
 1. The defining identifier for a component interface must be unique in the
-   namespace of the package within which it is declared.
+name space of the package within which it is declared.
 
-2. Each component type has a local namespace. Defining identifiers of
-   features, modes, mode transitions, and flow
-   specifications must be unique in the component interface namespace.
+2. Each component type has a local name space. Defining identifiers of
+features, modes, mode transitions, and flow
+specifications must be unique in the component interface namespace.
 
 
 *Semantics*
 
- A component interface represents the interface specification of a
+A component interface represents the interface specification of a
  component, i.e., the component category, prototypes, features, flow
  specifications, modes, mode transitions, and property values of a
  component. The component interface provides a contract for the component
  that users of the component can depend on.
 
- The component categories are: data, subprogram, subprogram group,
+The component categories are: data, subprogram, subprogram group,
  thread, thread group, and process (software categories); processor,
  virtual processor, bus, virtual bus, memory, and device (execution
  platform categories); system (compositional category), and abstract
  component (compositional category). The semantics of each category
  will be described in sections 5, 6, and 7.
 
- Features of a component are interaction points with other
+Features of a component are interaction points with other
  components, i.e., ports and feature groups; subprogram parameters;
  data component access, subprogram access, and bus access. Ports
  represent directional flow of data and events between components,
@@ -162,18 +122,18 @@ composite\_category ::=
  establish hardware connectivity. Features are further described in
  Section 8.
 
- Flow specifications indicate whether a flow of data or control
+Flow specifications indicate whether a flow of data or control
  originates within a component (*flow source*), terminates within a component (*flow sink*), or
  flows through a component from one of its incoming features to one of
  its outgoing features (*flow path*).
 
- Mode declarations define modes of the component that are common to
+Mode declarations define modes of the component that are common to
  all implementations. Component interfaces can have
  mode-specific property values. Modes can be inherited from an enclosing component as expressed by a *requires\_mode* declaration. Other components can initiate mode
  transitions by supplying events to incoming event ports of a
  component that are identified as triggers in mode transitions. 
  
- Property value can be associated with the component or with any of the content of the component type, i.e., with features, flows, modes.
+Property value can be associated with the component or with any of the content of the component type, i.e., with features, flows, modes.
 
 *Examples*
 

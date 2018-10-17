@@ -1,15 +1,15 @@
 AADL Packages
 =============
 
- The *package* concept provides a way to organize declarations of component classifiers, user defined types, property definitions, and annex libraries. 
-Package names consist of a **::** separated sequence of identifiers and reside in a global name space.
-A package represents a name space for its content. A component classifier, type, or property is uniquely identified by qualifying its name with the package name. References to content in the same package do not require qualification by package name. 
+The *package* concept provides a way to organize declarations of component classifiers, user defined types, property definitions, and annex libraries. 
+Packages can be nested, either by syntactically nesting package declarations, or by specifying a package with a dot (**.**) separated sequence of identifiers. The latter allows for packages to be stored in separate files.
 
- Users indicate their intent to reference content of other packages by a **with** declaration, identifying the packages whose content becomes visible in a given package. 
-Content of other packages can be referenced without qualification if its name is not in conflict with local content or content of other packages in **with** declarations. In case of conflict the reference must be qualified.
-Packages identified in qualified references must still be listed in a **with** declaration.
- 
- Packages can be nested, i.e., a package can be declared inside another package. This allows for grouping of packages. The content of a nested package is uniquely identified by any enclosing package names followed by the given package name and the element contained in the package.
+A package represents a name space for its content. A nested package, component classifier, type, or property definition is fully qualified by a *dot* separated sequence of identifiers starting with the identifier of a top-level package. A top-level package identifier refers to a package that is not nested in another package. 
+
+Users can make content of other packages visible in the name space of the package with the *import* declaration.  
+Content of imported packages can be referenced without qualification if its name is not in conflict with local content or content of other imported packages. 
+In case of conflict the reference must be fully qualified.
+Packages identified in fully qualified references must be listed in an *import* declaration.
 
 *Syntax*
 
@@ -22,7 +22,7 @@ package\_declaration ::=
 
 **package** *defining*\_package\_name
 
-{ with\_declaration }\ :sup:`\*`
+{ import\_declaration }\ :sup:`\*`
 
 { package\_content\_declaration }\ :sup:`\*`
 
@@ -33,7 +33,7 @@ package\_declaration ::=
 
 package\_name ::=
 
-{ *package*\_identifier **::** }\ :sup:`\*` *package*\_identifier
+*package*\_identifier { **.** *package*\_identifier }\ :sup:`\*`
 
 
 package\_content\_declaration ::=
@@ -49,65 +49,71 @@ component_classifier\_declaration
 \| annex\_library
 
 
-with\_declaration ::=
+import\_declaration ::=
 
-**with** package\_name { **,** package\_name }\ :sup:`\*`**;**
+**import** import\_reference { **,** import\_reference  }\ :sup:`\*` **;**
+
+
+name\_path ::=
+identifier { **.** identifier }\ :sup:`\*`
+
+import\_reference ::=
+name\_path ** . <star> ** ?
 
 
 properties\_subclause ::=
 **properties** { property\_association }\ :sup:`+`
 
 
-qualified\_package\_content\_reference ::=
-package\_name **::** package\_content_name
-
 
 *Naming Rules*
 
-1. An AADL specification has one *global* namespace. Package names reside in this name space and must be unique.
+1. An AADL specification has a *global* name space. Top-level package identifiers reside in this name space.
 
-2. A defining package name consists of a sequence of one or more 
-   identifiers separated by a double colon ( **::** ). A package
-   name must be unique in the global namespace.
+2. Packages introduce name spaces for their content. Nested packages represent nested name spaces.
 
-3. Packages represent namespaces for their content. The names of content must be unique within the package namespace. This includes packages declared inside packages.
+3. A defining package name consists of a sequence of two or more *dot* separated identifiers represents a nested package of one or more nesting levels. 
 
-4. Packages declared inside other packages represent a namespace local to the package, i.e., its content names must be unique within the package namespace.
+4. The name path of an import reference in an *import* declaration can be *relative* or *fully qualified* name path.
 
-5.  The package name in a *with\_declaration* must exist in the global
-name space or identify a package declared inside a package that exists in the global namespace.
+5. An import reference with a wildcard <star> indicator makes all content of the referenced package visible. An import reference without wildcard <star> makes the specific referenced package content element visible.
 
-6. Package content in other packages can only be referenced if that package is listed in a *with\_declaration*.
+6. Fully qualified name path references must only reference content made accessible by an *import* declaration. 
 
-7. Package content can be referenced by its name without qualification if it resides in the same package as the reference, or its name does not conflict with local content or content of other packages listed in with declarations. 
-If the referenced content from another package cannot be uniquely identified it must be qualified by the package name separated by **::** and the package name must exist in one of the with declarations.
+7. Relative name path references to package content start with the name space of the package that contains the reference. 
+
+8. A relative reference does not require the content to be made visible by an *import* declaration.
+
+9. Package content can be referenced by its name without full qualification if it resides in the same package as the reference, or its name does not conflict with local content or content of other packages listed in with declarations. 
 
 
 
 *Semantics*
 
- A *package* provides a way to organize declarations of component classifiers, user defined types, property definitions, and annex libraries. 
-Packages reside in a global namespace. A collection of packages makes up an AADL specification.
+A *package* provides a way to organize declarations of nested packages, component classifiers, user defined types, property definitions, and annex libraries. 
+Top-level packages, i.e., packages that are not nested, reside in a global name space. 
 
- A package name consists of a double colon (**::**) separated sequence of identifiers to create globally unique package names. 
- 
- Packages can be declared inside other packages. This allows for grouping of packages.
- 
- The content of packages can be referenced within the same package without qualification. 
+A collection of packages makes up an AADL specification.
 
- The content of other packages can be referenced if they are listed in **with** declarations. The reference to such content must be qualified by the package name if the content name conflicts with local content or content of other packages listed in **with** declarations.
+Package content and nested package content can be referenced by a *relative* name path - starting with the enclosing name space of the reference location.
 
- Property associations declared in the properties section of a
-package are associated with the package itself. 
+Content of other packages is made accessible through a *import* declaration. 
+A name path with a wild card <star> in an *import* declaration makes all content of the identified package accessible. A fully qualified name path without wild card <star> makes the referenced content element accessible.
+
+A relative name path in an *import* declaration makes content of a nested package accessible, while a fully qualified name path makes any package content accessible.
+
+Imported content can be referenced by its identifier. If imported content creates a name conflict with local declarations or other imported content, the reference must be relative or fully qualified. For fully qualified references the referenced model element must have been imported.
+
+A relative name path can reference content of package nested in the package containing the reference. It can do so without the content being imported.
 
 *Processing Requirements and Permissions*
 
- A method of implementation is permitted to enforce that the with
+A method of implementation is permitted to enforce that the import
 declaration in a package not be changed to enforce the use
 restrictions between packages when classifiers are added to the
 package.
 
- A method of processing must accept an AADL specification presented
+A method of processing must accept an AADL specification presented
 as a single string of text in which declarations may appear in any
 order. An AADL specification may be stored as multiple pieces of
 specification text that are named or indexed in a variety of ways,
@@ -120,7 +126,7 @@ text. This approach makes AADL scalable in handling large models.
 
 **package** Aircraft::Cockpit
 
-**with** Avionics::DataTypes, Safety\_Properties;
+**import** Avionics::DataTypes.*, Management\_Properties.*;
 
 **system** MFD
 
