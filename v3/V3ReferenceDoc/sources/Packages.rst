@@ -11,16 +11,14 @@ Content of imported packages can be referenced without qualification if its name
 In case of conflict the reference must be fully qualified.
 Packages identified in fully qualified references must be listed in an *import* declaration.
 
-*Syntax*
+*Syntax*::
 
-AADL\_specification ::=
-
-{ package\_declaration }\ :sup:`+`
-
-
-package\_declaration ::=
-
-**package** *defining*\_package\_name
+ AADL\_specification ::=
+ { package\_declaration }\ :sup:`+`
+ 
+ 
+ package\_declaration ::=
+ **package** *defining*\_package\_name
 
 { import\_declaration }\ :sup:`\*`
 
@@ -124,7 +122,7 @@ text. This approach makes AADL scalable in handling large models.
 
 *Examples*
 
-**package** Aircraft::Cockpit
+``**package** Aircraft::Cockpit
 
 **import** Avionics::DataTypes.*, Management\_Properties.*;
 
@@ -136,5 +134,5 @@ Airdata: **in data port** AirData ;
 
 #Annotations::Author => "Feiler";
 
-**end** ;
+**end** ;``
 

@@ -54,7 +54,7 @@ Component interfaces may include annex subclauses that provide annotations expre
 
 component\_interface ::=
 
-component\_category **interface** *defining\_component\_interface\_*identifier **is**
+component\_category? **interface** *defining\_component\_interface\_*identifier **is**
 
 { feature \| flow\_spec \| mode_declaration \| annex\_subclause \| property\_association }\ :sup:`\*`
 
@@ -87,53 +87,23 @@ composite\_category ::=
 
 *Naming Rules*
 
-1. The defining identifier for a component interface must be unique in the
-name space of the package within which it is declared.
-
-2. Each component type has a local name space. Defining identifiers of
-features, modes, mode transitions, and flow
-specifications must be unique in the component interface namespace.
+1. A component interface introduces a local name space for defining identifiers of component interface content. Such content is feature declarations, mode declarations, and flow specification declarations.
 
 
 *Semantics*
 
-A component interface represents the interface specification of a
- component, i.e., the component category, prototypes, features, flow
- specifications, modes, mode transitions, and property values of a
- component. The component interface provides a contract for the component
- that users of the component can depend on.
+A component interface represents the external interface specification of a
+component. The component interface provides a contract for the component
+that users of the component can depend on. 
+The interface specification includes: 
 
-The component categories are: data, subprogram, subprogram group,
- thread, thread group, and process (software categories); processor,
- virtual processor, bus, virtual bus, memory, and device (execution
- platform categories); system (compositional category), and abstract
- component (compositional category). The semantics of each category
- will be described in sections 5, 6, and 7.
+# features as interaction points for connections and bindings, 
+# flow specifications indicating flow sources, sinks, and paths from incoming to outgoing features, 
 
-Features of a component are interaction points with other
- components, i.e., ports and feature groups; subprogram parameters;
- data component access, subprogram access, and bus access. Ports
- represent directional flow of data and events between components,
- feature groups represent groups of features that are connected to
- another component, data component access represents access to
- shared data components, subprogram access represents access to a
- subprogram by a caller, and bus access represents access to a bus
- from processor, memory, device, and other bus components to
- establish hardware connectivity. Features are further described in
- Section 8.
+* externally visible mode behavior, and 
+* property values associated with the component and its content. Property values may be mode specific. 
 
-Flow specifications indicate whether a flow of data or control
- originates within a component (*flow source*), terminates within a component (*flow sink*), or
- flows through a component from one of its incoming features to one of
- its outgoing features (*flow path*).
-
-Mode declarations define modes of the component that are common to
- all implementations. Component interfaces can have
- mode-specific property values. Modes can be inherited from an enclosing component as expressed by a *requires\_mode* declaration. Other components can initiate mode
- transitions by supplying events to incoming event ports of a
- component that are identified as triggers in mode transitions. 
- 
-Property value can be associated with the component or with any of the content of the component type, i.e., with features, flows, modes.
+Component interfaces can be specified with a component category. If the category is omitted it is considered to be generic, i.e., category *component*.  The semantics of each of the component categories are described in later sections.
 
 *Examples*
 

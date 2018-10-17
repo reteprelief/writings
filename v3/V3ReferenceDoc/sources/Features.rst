@@ -7,6 +7,19 @@ other components. Connections between features of different components represent
 Features include ports to support directional flow of data and control, shared data access, and remote procedure call interactions. Features also represent binding points between components in an application system and components in the hardware platform. 
 Features also represent access to buses for modeling hardware interconnections via buses.
 
+Features of a component are interaction points with other
+components, i.e., ports and feature groups; subprogram parameters;
+data component access, subprogram access, and bus access. Ports
+represent directional flow of data and events between components,
+feature groups represent groups of features that are connected to
+another component, data component access represents access to
+shared data components, subprogram access represents access to a
+subprogram by a caller, and bus access represents access to a bus
+from processor, memory, device, and other bus components to
+establish hardware connectivity. Features are further described in
+Section 8.
+
+
  A *feature* is a part of a component type definition that specifies
 how that component interfaces with other components in the system.
 
