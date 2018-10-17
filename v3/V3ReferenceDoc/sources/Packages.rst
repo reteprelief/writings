@@ -11,7 +11,8 @@ Content of imported packages can be referenced without qualification if its name
 In case of conflict the reference must be fully qualified.
 Packages identified in fully qualified references must be listed in an *import* declaration.
 
-*Syntax*::
+Syntax
+------
 
  AADL\_specification ::=
  { package\_declaration }\ :sup:`+`
@@ -56,7 +57,7 @@ name\_path ::=
 identifier { **.** identifier }\ :sup:`\*`
 
 import\_reference ::=
-name\_path ** . <star> ** ?
+name\_path ** . \* ** ?
 
 
 properties\_subclause ::=
@@ -64,7 +65,8 @@ properties\_subclause ::=
 
 
 
-*Naming Rules*
+Naming Rules
+-------------
 
 1. An AADL specification has a *global* name space. Top-level package identifiers reside in this name space.
 
@@ -86,7 +88,8 @@ properties\_subclause ::=
 
 
 
-*Semantics*
+Semantics
+---------
 
 A *package* provides a way to organize declarations of nested packages, component classifiers, user defined types, property definitions, and annex libraries. 
 Top-level packages, i.e., packages that are not nested, reside in a global name space. 
@@ -104,7 +107,8 @@ Imported content can be referenced by its identifier. If imported content create
 
 A relative name path can reference content of package nested in the package containing the reference. It can do so without the content being imported.
 
-*Processing Requirements and Permissions*
+Processing Requirements and Permissions
+---------------------------------------
 
 A method of implementation is permitted to enforce that the import
 declaration in a package not be changed to enforce the use
@@ -120,11 +124,12 @@ Preprocessors or other forms of automatic generation may be used to
 process AADL specifications to produce the required specification
 text. This approach makes AADL scalable in handling large models.
 
-*Examples*
+Examples
+--------
 
-``**package** Aircraft::Cockpit
+**package** Aircraft.Cockpit
 
-**import** Avionics::DataTypes.*, Management\_Properties.*;
+**import** Avionics.DataTypes.\*, Management\_Properties.\*;
 
 **system** MFD
 
@@ -132,7 +137,7 @@ Airdata: **in data port** AirData ;
 
 **end** ;
 
-#Annotations::Author => "Feiler";
+#Author => "Feiler";
 
 **end** ;``
 
