@@ -6,12 +6,12 @@ Component classifiers are used to characterize components in an embedded softwar
 1. *Component interface*: a component specification that represents the external interface to a component. It consists of *features* that represent interaction points with other components, 
 *flows* from incoming features to outgoing features, externally visible modes, and property values associated with the component, its features, and flows.
  
-2. *Component implementation*:  a component blue print that represents how a component is realized in terms of interconnected subcomponents. Subcomponents represent component instances that are characterized by a component classifier reference. Connections specify flow between features of different subcomponents or a subcomponent feature and its own feature.
+2. *Component implementation*:  a component blue print that represents how a component is realized in terms of interconnected subcomponents. A *subcomponent* represent component instances that are characterized by a component classifier reference. Connections specify flow between features of different subcomponents or a subcomponent feature and its own feature.
 Flow implementations elaborate on a flow from an incoming to an outgoing feature by identifying connections and subcomponents involved in the flow. A component implementation may also specify a binding from an software application component to a platform component.
 Bindings specify the binding of a software subcomponent to a platform component. A component implementation and its elements can have property values. 
  
-3. *Component configuration*: a specific set of component implementations or configurations chosen for subcomponents including nested subcomponents as well as properties and bindings relevant to the configuration. 
-Once configured a subcomponent architecture cannot be changed, only annotated with additional property values. Configurations can be parameterized in that users of such configurations can only provide actuals for the specified parameters.
+3. *Configuration*: a configuration of existing subcomponents including nested subcomponents as well as properties and bindings relevant to the configuration. 
+A configuration does not change a subcomponent architecture. Instead it expands leaf subcomponents by choosing their implementations. In addition, configurations annotate model elements with additional property values. Configurations can be parameterized in that users of such configurations can only provide actuals for the specified parameters.
  
 A component has a *component category*. It can be defined as a generic component (using the keyword **component**), or it can represent a specific software or hardware entity through one of the following component *categories*: 
 *thread*, *thread group*, *process*, *data,*
@@ -33,6 +33,12 @@ Component interfaces and configurations can also be specified as *composition* o
  actual component. This standard does not restrict the lower-level representation(s) used for software components, e.g., binary images,
  conventional programming languages, application modeling languages, nor does it restrict the lower-level representation(s) used for
  physical hardware component designs, e.g., circuit diagrams,hardware behavioral descriptions.
+ 
+ Syntax
+ ^^^^^^
+ 
+ component\_classifier ::= component\_interface \| component\_implementation \| configuration
+ 
 
 Component Interfaces
 --------------------
@@ -71,6 +77,8 @@ Syntax
 | execution\_platform\_category ::= **memory** \| **processor** \| **bus** \| **device** \| **virtual processor** \| **virtual bus** \| **virtual memory** \| **virtual device**
 | 
 | composite\_category ::= **system**
+| 
+| component\_interface\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` *component\_interface\_*identifier
 
 
 Naming Rules
@@ -89,7 +97,8 @@ Semantics
 
 A component interface represents the external interface specification of a
 component. The component interface provides a contract for the component
-that users of the component can depend on. 
+that users of the component can depend on. All interactions of this component with other components are limited to occur through the component features.
+
 The interface specification includes: 
 
 * features as interaction points for connections and bindings, 
@@ -164,19 +173,20 @@ component\_implementation\_name ::=
 *component\_interface*\_identifier **.** *component\_implementation*\_identifier
 
 
+component\_implementation\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` component\_implementation\_name
+
 
 Naming Rules
 ^^^^^^^^^^^^^
 
-1. A component implementation name consists of a component interface
-   identifier and a component implementation identifier separated by a
-   dot (**.**). The component interface identifier must be accessible in the package name space that contains the component implementation declaration, i.e., either declared in the same package or made accessible by a *import* declaration. 
-   The defining identifier of the component implementation must be unique within the name space of the component interface.
+1. The component interface identifier of the defining component implementation name must be accessible in the package name space that contains the component implementation declaration, i.e., either declared in the same package or made accessible by a *import* declaration. 
 
-2. Every component implementation defines a name space for the defining identifiers of its content.  
+#. The component implementation identifier of the defining component implementation name must be unique within the name space of the component interface.
 
-3. The component implementation name space inherits the name space of the 
-   component interface. Defining identifiers of implementation content must not conflict with defining identifiers of the respective component interface content. For example, a feature in the component interface and a subcomponent in the component implementation cannot have hte same name.
+#. The component implementation defines a name space for the defining identifiers of its content.  
+
+#. The component implementation name space inherits the name space of the 
+   component interface. Defining identifiers of implementation content must not conflict with defining identifiers of the respective component interface content. For example, a feature in the component interface and a subcomponent in the component implementation cannot have the same name.
 
 
 Legality Rules
@@ -201,7 +211,7 @@ implementation. These mode transitions may be triggered by ports of subcomponent
 Consistency Rules
 ^^^^^^^^^^^^^^
 
-1. If the component implementation has subcomponents, then a flow implemenation must be specified for each flow specificaiton in the component interface.
+1. If the component implementation has subcomponents, then a flow implementation must be specified for each flow specification in the component interface.
 
 Semantics
 ^^^^^^^^^
@@ -299,253 +309,23 @@ CruiseActive#Source\_Name => CruiseControlActive;
 
 **end** **;**
 
-Component Configurations
-------------------------
-
-
-Naming Rules
-^^^^^^^^^^^^
-
-1. The subcomponent reference in a subcomponent configuration declaration must exist in the name space of an
-   ancestor component implementation.
-
-3. The configuration parameter identifier of a prototype reference must exist in the
-   local name space of the component implementation.
-
-4. The parameter referenced by the prototype binding declarations must
-   exist in the name space of the component configuration being
-   referenced.
-
-
-Component Classifier Extension and Composition
-----------------------------------------
-
- Component interface, implementations and configurations can be declared in terms of other component classifiers. 
-A component interface can *extend* another component interface 
-inheriting its declared content and property associations. 
-A component implementation can *extend* another component implementation, inheriting its content and property associations.
-A component configuration can *extend* an other component configuration or component implementation inheriting its content and property associations.
-The component classifier extending another component classifier can add additional content, as well as add and override property values.
-
- A component interface can be composition of multiple component interfaces. This is expressed by listing multiple component interface references after the **extends** keyword.
-In this case the content of all component interfaces listed after the **extends** is inherited. The inherited content must be unique. For example, there cannot be two features inherited from different component interfaces that have the same name.
-If a property is inherited from two component interfaces then its value must be the same.
-
- A component configuration can be a composition of multiple component configurations. This is expressed by listing multiple component interface or configuration references after the **extends** keyword.
-In this case the content of all component interface or configurations listed after the **extends** is inherited. The inherited content must be unique. For example, there cannot be two features inherited from different component types that have the same name.
-If a property is inherited from two component types then its value must be the same.
-
- Component type extensions form an *extension hierarchy*, i.e., a
-component type that extends another component type can also be
-extended. Component types being extended are referred to as *ancestors*, while component
-types extending a component type are referred to as *descendants*.
-
-*Syntax*
-
-component\_type\_extension ::=
-
-component\_category *defining\_component\_type\_*identifier
-
-**extends** unique\_component\_type\_reference { **,** unique\_component\_type\_reference }\ :sup:`*`
-
-`[` **features** ( { feature \| feature\_refinement }\ :sup:`+` \|
-none\_statement ) `]`
-
-[ flows\_subclause ]
-
-[ modes\_subclause ]
-
-[ properties\_subclause ]
-
-
-unique\_component\_type\_reference ::=
-
-[ package\_name **::** ] *component\_type\_*\identifier
-
-*Naming Rules*
-
-1. The component type identifier of the ancestor in a component type
-   extension, i.e., that appears after the reserved word **extends**,
-   must exist in the same package as the descendant, or in a package listed in a *with* declaration.
-
-2. When a component type extends another component type, its namespace includes all the identifiers in the namespaces of its
-   ancestors. This means that all inherited content as well as any locally declared content must have a unique name. 
-
-
-*Legality Rules*
-
-
-1. The category of the component type being extended must match the
-   category of the extending component type, i.e., they must be
-   identical or the category being extended must be **abstract**.
-
-2. If the extended component type and an ancestor component type in the
-   extends hierarchy contain modes subclauses, they must both have only mode declarations or requires\_mode declarations.
-   
-
-*Standard Properties*
-
-Classifier Substitution Rule: **inherit** **enumeration** (Classifier
-Match, Type Extension, Signature\_Match)
-
-This property is not a property on the component, but an annotation about replacement of classifiers in feature refinement.
-
-*Semantics*
-
- A component type can be declared as an extension of other
- component types resulting in a component type extension hierarchy. 
- A component type extension inherits the content
- of the component type(s) being extended.  A component
- type extension can refine inherited features and it can add additional content.  Similarly, it can add new property values or override property values.
- A component type extension can change an *abstract* category into any of the concrete component categories.
-
- Component type extension allows users to represent families of components with partially defined interfaces getting refined and extended.
- Component type composition allows users to define libraries of component interfaces that can be combined to represent the interface of a component. 
- For example, we may have a component type representing the logical application interface and a second component type represents the hardware platform interface. 
- This supports
- evolutionary development and modeling of system families by
- declaring partially complete component types that get refined in
- extensions.
-
- Each annex defines whether annex declarations in annex subclauses are inherited by the descendant.
-
-
-Component Implementation Extensions
------------------------------------
-
- A component implementation can be declared as an extension of
-another component implementation. In that case, the component
-implementation inherits the declarations of its ancestors as well as
-its component type. A component implementation extension can refine
-inherited declarations, and add subcomponents, connections,
-subprogram call sequences, flow sequences, mode declarations, and
-property associations.
-
- Component implementations build on the component type *extension
-hierarchy* in two ways. First, a component implementation is a
-realization of a component type (shown as dashed arrows in Figure
-3). As such it inherits features and property associations of its
-component type and any component type ancestor. Second, a component
-implementation declared as extension inherits subcomponents,
-connections, subprogram call sequences, flow sequences, modes,
-property associations, and annex subclauses from the component
-implementation being extended (shown as solid arrows in Figure 3). A
-component implementation can extend a component implementation that
-in turn extends another component implementation, e.g., in Figure 3
-*GPS*. Handheld extends *GPS.Basic* and is extended by
-*GPS\_Secure.Handheld*. Component implementations higher in the
-extension hierarchy are called ancestors and those lower in the
-hierarchy are called descendants. A component implementation can
-extend another component implementation of its own component type,
-e.g., *GPS.Handheld* extends *GPS.Basic*, or it can extend the
-component implementation of one of its ancestor component types,
-e.g., *GPS\_Secure.Handheld* extends *GPS.Handheld*, which is an
-implementation of the ancestor component type *GPS*. The component
-type and implementation extension hierarchy is illustrated in Figure
-3.
- 
-*Syntax*
-
-component\_category *defining\_*component\_implementation\_name
-
-**extends** unique\_component\_implementation\_reference 
-
-
-[ **subcomponents **
-
-( { subcomponent \| subcomponent\_refinement }\ :sup:`+` \|
-none\_statement ) ]
-
-[ **internal features** { internal\_feature }\ :sup:`+` ]
-
-[ **processor features** { processor\_feature }\ :sup:`+` ]
-
-[ **calls** ( { subprogram\_call\_sequence }\ :sup:`+` \|
-none\_statement ) ]
-
-[ **connections**
-
-( { connection \| connection\_refinement }\ :sup:`+` \| none\_statement
-) ]
-
-[ **flows** ( { flow\_implementation \|
-
-end\_to\_end\_flow \| end\_to\_end\_flow \_refinement }\ :sup:`+`
-
-\| none\_statement ) ]
-
-[modes\_subclause ]
-
-[ **properties** ( { property\_association \|
-contained\_property\_association }\ :sup:`+`
-
-\| none\_statement ) ]
-
-{ annex\_subclause }\ :sup:`\*`
-
-**end**  ;
-
-
-
-4. Refinement identifiers of prototype, subcomponent, and connection
-   refinements must exist in the local namespace of an ancestor
-   component implementation.
-
-5. In a component implementation extension, the component type
-   identifier of the component implementation being extended, which
-   appears after the reserved word **extends**, must be the same as or
-   an ancestor of the component type of the extension. The component
-   implementation being extended may exist in another package. In this
-   case the component implementation name is qualified with the package
-   name.
-
-6. When a component implementation **extends** another component
-   implementation, the local namespace of the extension is a superset of
-   the local namespace of the ancestor. That is, the local namespace of
-   a component implementation inherits all the identifiers in the local
-   namespaces of its ancestors (including the identifiers of their
-   respective component type namespaces).
-
-
-Legal
-
-
-3.  If the component implementation extends another component
-implementation, the category of both must match, i.e., they must
-be identical or the category being extended must be
-**abstract**.
-
-
-*Standard Properties*
-
-Classifier Substitution Rule: **inherit** **enumeration** (Classifier
-Match, Type Extension, Signature Match)
-
-This property is not a property on the component, but an annotation about replacement of classifiers in feature refinement.
-
-semantics
-
 
 
 
 Subcomponents
 -------------
 
- A *subcomponent* represents a component instance contained within another
-component, i.e., declared within a component implementation.
-Subcomponent declarations specify the component category and a component classifier or primitive type. If the component classifier is an interface then it can be configured with a realization, i.e., a component implementation or configuration.
-If the subcomponent classifier is an implementation or a configuration then it identifies the next layer of component instances.
-If the component configuration is parameterized parameter actuals may be included with the configuration reference.
-If the category is *data* then a primitive type reference identifies the data type. A primitive type is one of the predeclared base types or a user defined type.
+ A *subcomponent* represents a component instance contained within another component,. It is declared within a component implementation.
+Subcomponent declarations specify the component category and a component classifier or in the case of a data component primitive type. 
+If the subcomponent classifier is an implementation or a configuration then it identifies the next layer of component instances in the component hierarchy.
 
-A subcomponent can be declared to apply to specific modes (rather
-than all modes) defined within the component implementation, i.e., it may belong to a mode specific runtime configuration.
+A subcomponent can be declared as an array. 
 
-A subcomponent can be configured by assigning a component implementation or configuration that matches the originally specified classifier.
+A subcomponent can be declared to apply to specific modes.
 
-An array of subcomponents can be declared to represent a set of
-subcomponents with the same component type. This array may have one
-or more dimensions.
+A subcomponent can have property values associated as part of the subcomponent declaration. 
+
+A subcomponent declaration may include a specification of nested subcomponents without explicit component classifier specification.
 
 Syntax
 ^^^^^^
@@ -556,57 +336,34 @@ subcomponent ::=
 
 component\_category
 
-[ unique\_component\_classifier\_reference [ configuration\_actuals ]
+( type\_reference [ array\_dimensions ] [ **{** { property\_association  }\ :sup:`+` **}** ]
 
-[ array\_dimensions [ array\_element\_implementation\_list ] ]
-
-[ **{** { property\_association }\ :sup:`+` **}** ]
+\| [ array\_dimensions ] **{** { property\_association \| nested\_subcomponent }\ :sup:`+` **}** )
 
 [ component\_in\_modes ] **;**
 
 
-subcomponent\_configuration ::=
+type\_reference ::= component\_classifier\_reference \| primitive\_type\_reference
 
-*subcomponent\_*identifier **=>**
+component\_classifier\_reference ::= component\_interface\_reference \| component\_implementation\_reference \| component\_configuration\_reference
 
-[ component\_realization\_reference [ configuration\_actuals ]
+primitive\_type\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` *primitive\_type\_*identifier
 
-[ array\_dimensions [ array\_element\_implementation\_list ] ]
-
-[ **{** { *subcomponent*\ \_property\_association
-
-\| contained\_property\_association }\ :sup:`+` **}** ]
-
-[ component\_in\_modes ] **;**
+array\_dimensions ::= { array\_dimension  }\ :sup:`+`
 
 
-component\_realization\_reference ::=
-
-( component\_implementation\_reference
-
-\| component\_configuration\_reference )
+array\_dimension ::= **[** [ array\_dimension\_size ] **]**
 
 
-array\_dimensions ::=
-
-{ array\_dimension  }\ :sup:`+`
+array\_dimension\_size ::= numeral \| unique\_property\_constant\_identifier
 
 
-array\_dimension ::=
-
-**[** [ array\_dimension\_size ] **]**
+nested\_subcomponent ::= subcomponent \| feature \| connection
 
 
-array\_dimension\_size ::=
-
-numeral \| unique\_property\_constant\_identifier
-
+subcomponent\_reference ::=  identifier [ array\_selection ]
 
 -- array selection used in contained property association and references
-
-array\_selection\_identifier ::=
-
-identifier array\_selection
 
 array\_selection ::=
 
@@ -616,6 +373,11 @@ selection\_range ::=
 
 numeral [ **..** numeral ]
 
+Naming Rules
+^^^^^^^^^^^^
+
+1. The type references must be visible in the name scope of the package that contains the component implementation with the subcomponent declaration.
+
 
 Legality Rules
 ^^^^^^^^^^^^^^
@@ -624,18 +386,8 @@ Legality Rules
 
 2. If the category of a subcomponent declaration is *data*, then its must reference a primitive type.
 
-#. The classifier of a subcomponent cannot recursively contain
-   subcomponents with the same component classifier. In other words,
-   there cannot be a cyclic containment dependency between components.
+#. The classifier of a subcomponent cannot recursively contain subcomponents with the same component classifier. In other words, there cannot be a cyclic containment dependency between components.
 
-6. Selecting index ranges in one or more dimensions of an array is only
-   possible if the size of the array for these dimensions is already
-   defined. The index range of a dimension is from 1 to the size of
-   the dimension. Specification of array index ranges is limited to
-   the **applies to** subclause of contained property associations.
-   Specification of a single array element is limited to the
-   **applies to** subclause of contained property associations and
-   to the values of **reference** properties.
 
 Standard Properties
 ^^^^^^^^^^^^^^^^^^^
@@ -647,25 +399,20 @@ Semantics
 
 Subcomponent declarations represent component instances.
 Subcomponents are instantiated when the containing component
-implementation is instantiated. Similarly, if the subcomponent declaration references a component realization, its subcomponents are instantiated recursively.
+implementation is instantiated. Similarly, if the subcomponent declaration references a component implementation or configuration, its subcomponents are instantiated recursively.
 
-Once declared subcomponents can be configured. Configuration assignments associate a component implementation or configuration with an existing subcomponent declaration. 
-Configuration assignments elaborate the component hierarchy by replacing a component interface with an implementation or configuration. 
-Configuration assignments also associate collections of property values with the subcomponent and any model element in the component hierarchy within the subcomponent.
-Finally, configuration assignments can associate annex subclauses to components in the hierarchy within the subcomponent.
+A mode specific runtime configuration of components can be defined by indicating the set of modes in which a subcomponent is active.
 
-If the referenced component configuration is parameterized then parameter actuals may be included with the configuration reference.
-
-If the category is *data* then a primitive type reference identifies the data type. A primitive type is one of the predeclared base types or a user defined type.
-
-A subcomponent can be declared to apply to specific modes (rather
-than all modes) defined within the component implementation, i.e., it may belong to a mode specific runtime configuration.
-
-An array of subcomponents can be declared to represent a set of
-subcomponents with the same component type. This array may have one
-or more dimensions.
-
+An array of subcomponents represents a collection of
+the same component instance. This array may have one or more dimensions. 
 A property value associated with a subcomponent array applies to each element in the array. Users can also specify property associations for specific array elements.
+
+Property values can be associated with subcomponents by declaring them in curly brackets as part of the subcomponent declaration. 
+Property values can also be associated by a property association declaration that references the subcomponent.
+
+Once declared subcomponents can be configured through configuration assignments (see next section). 
+
+Nested subcomponents can be declared as part of a subcomponent declaration inside curly brackets. This allows users to define a subcomponent hierarchy without explicit classifiers.
 
 Processing Requirements and Permissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -834,4 +581,261 @@ output: **out data port**;
 **end**;
 
 **end** ;
+
+
+
+Configurations
+--------------
+
+A configuration declaration allow users to configure an existing architecture design by expanding its component hierarchy, but not change it. A configuration declaration can
+
+* assign a component implementation or configuration with previously declared subcomponent, which will be used during model instantiation
+* assign a primitive type or component interface to features 
+* associate property values with existing model elements down the component hierarchy
+* associate annex subclauses to classifiers
+
+A configuration is related to a component implementation or another configuration.
+
+Syntax
+^^^^^^
+
+| configuration ::=
+| **configuration** *defining\_*configuration\_name [ configuration\_parameters ] 
+| [ classifier\_extensions ]
+| **is**
+| { configuration\_assignment \| property\_association }\ :sup:`\*`
+| **end** **;**
+| 
+| configuration\_name ::= *component\_interface*\_identifier **.** *configuration*\_identifier
+| 
+| configuration\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` configuration\_name
+| 
+| configuration\_parameter ::= *defining\_parameter\_*identifier **:** expected\_type\_reference
+| 
+| configuration\_assignment ::= 
+| model\_element\_reference **=>** 
+| ( assigned\_configuration\_value [ nested\_configuration ] ) \| nested\_configuration
+| 
+| assigned\_configuration\_value ::= primitive\_type\_reference \| component\_implementation\_reference \| configuration\_reference \| configuration\_parameter\_reference
+| 
+| nested\_configuration ::= **{** { configuration\_assignment \| property\_association }\ :sup:`\*` **}**
+| 
+| model\_element\_reference ::= identifier { **.** identifier }\ :sup:`\*`
+
+Naming Rules
+^^^^^^^^^^^^
+
+1. The component interface identifier of the defining configuration name must be accessible in the package name space that contains the component implementation declaration, i.e., either declared in the same package or made accessible by a *import* declaration. 
+#. The configuration identifier of the defining configuration name must be unique within the name space of the component interface.
+#. The configuration 
+#. The configuration defines a name space for the defining identifiers of its parameters.  
+#. The configuration name space inherits the name space of the  component interface as well as the name spaces of classifiers listed in the extension. 
+#. Model element references of configuration assignments are resolved in the context of the configuration name space. In the case of nested configuration assignments the name space of the model element of the enclosing configuration assignment is used.
+#. The referenced model element must be a subcomponent or a feature.
+#. The assigned configuration value must be a reference that is accessible in the name space of the enclosing package or the local name space.
+
+Legality Rules
+^^^^^^^^^^^^^^
+
+#. For subcomponent model element references the assigned configuration value must be a component implementation or configuration.
+
+Semantics
+^^^^^^^^^
+
+A configuration can elaborate an existing architecture design by expanding its component hierarchy, but not change it. 
+A configuration can assign component classifiers or primitive types with features.
+A configuration can associate property values to any model element within the component hierarchy represented by the configuration. 
+Finally, configuration can add annex subclauses to components in the component hierarchy within the subcomponent.
+
+
+If the component configuration is parameterized parameter actuals may be included with the configuration reference.
+If the category is *data* then a primitive type reference identifies the data type. A primitive type is one of the predeclared base types or a user defined type.
+
+If the referenced component configuration is parameterized then parameter actuals may be included with the configuration reference.
+
+Component Classifier Extension and Composition
+----------------------------------------
+
+Component interfaces, implementations, and configurations can be declared as extensions or compositions of another component classifiers. 
+The extension inherits the model element definitions contained in the ancestor as well as property associations. The extension can add new definitions, configure existing model elements, add annex subclauses, and assign property values. 
+The inherited content must be unique, i.e., the same model element definition must not exist in more than one ancestor classifier being composed. Similarly, property values can only be associated with a model element in one of the ancestors.
+Furthermore, model element definitions added in the extension must not have an identifier that conflicts with inherited model elements. Property values associated with model elements in the extension override the previously assigned property value.
+
+A component interface can be an extension of one or composition of multiple component interfaces. 
+
+A component implementation can be an extension of one component implementation. 
+
+A configuration is always defined as an extension of one component implementation or configuration, or as composition of multiple configurations. 
+
+Component classifier extensions and compositions form an *extension hierarchy* with the original referred to as *ancestor* and the extension as *descendant*.
+
+*Syntax*
+
+classifier\_extensions ::=
+**extends** *classifier\_*name\_path { **,** type\_reference }\ :sup:`*`
+
+
+*Naming Rules*
+
+1. The component type identifier of the ancestor in a component type
+   extension, i.e., that appears after the reserved word **extends**,
+   must exist in the same package as the descendant, or in a package listed in a *with* declaration.
+
+2. When a component type extends another component type, its namespace includes all the identifiers in the namespaces of its
+   ancestors. This means that all inherited content as well as any locally declared content must have a unique name. 
+
+
+*Legality Rules*
+
+
+1. The category of the component type being extended must match the
+   category of the extending component type, i.e., they must be
+   identical or the category being extended must be **abstract**.
+
+2. If the extended component type and an ancestor component type in the
+   extends hierarchy contain modes subclauses, they must both have only mode declarations or requires\_mode declarations.
+   
+
+*Standard Properties*
+
+Classifier Substitution Rule: **inherit** **enumeration** (Classifier
+Match, Type Extension, Signature\_Match)
+
+This property is not a property on the component, but an annotation about replacement of classifiers in feature refinement.
+
+*Semantics*
+
+ A component type can be declared as an extension of other
+ component types resulting in a component type extension hierarchy. 
+ A component type extension inherits the content
+ of the component type(s) being extended.  A component
+ type extension can refine inherited features and it can add additional content.  Similarly, it can add new property values or override property values.
+ A component type extension can change an *abstract* category into any of the concrete component categories.
+
+ Component type extension allows users to represent families of components with partially defined interfaces getting refined and extended.
+ Component type composition allows users to define libraries of component interfaces that can be combined to represent the interface of a component. 
+ For example, we may have a component type representing the logical application interface and a second component type represents the hardware platform interface. 
+ This supports
+ evolutionary development and modeling of system families by
+ declaring partially complete component types that get refined in
+ extensions.
+
+ Each annex defines whether annex declarations in annex subclauses are inherited by the descendant.
+
+
+Component Implementation Extensions
+-----------------------------------
+
+ A component implementation can be declared as an extension of
+another component implementation. In that case, the component
+implementation inherits the declarations of its ancestors as well as
+its component type. A component implementation extension can refine
+inherited declarations, and add subcomponents, connections,
+subprogram call sequences, flow sequences, mode declarations, and
+property associations.
+
+ Component implementations build on the component type *extension
+hierarchy* in two ways. First, a component implementation is a
+realization of a component type (shown as dashed arrows in Figure
+3). As such it inherits features and property associations of its
+component type and any component type ancestor. Second, a component
+implementation declared as extension inherits subcomponents,
+connections, subprogram call sequences, flow sequences, modes,
+property associations, and annex subclauses from the component
+implementation being extended (shown as solid arrows in Figure 3). A
+component implementation can extend a component implementation that
+in turn extends another component implementation, e.g., in Figure 3
+*GPS*. Handheld extends *GPS.Basic* and is extended by
+*GPS\_Secure.Handheld*. Component implementations higher in the
+extension hierarchy are called ancestors and those lower in the
+hierarchy are called descendants. A component implementation can
+extend another component implementation of its own component type,
+e.g., *GPS.Handheld* extends *GPS.Basic*, or it can extend the
+component implementation of one of its ancestor component types,
+e.g., *GPS\_Secure.Handheld* extends *GPS.Handheld*, which is an
+implementation of the ancestor component type *GPS*. The component
+type and implementation extension hierarchy is illustrated in Figure
+3.
+ 
+*Syntax*
+
+component\_category *defining\_*component\_implementation\_name
+
+**extends** unique\_component\_implementation\_reference 
+
+
+[ **subcomponents **
+
+( { subcomponent \| subcomponent\_refinement }\ :sup:`+` \|
+none\_statement ) ]
+
+[ **internal features** { internal\_feature }\ :sup:`+` ]
+
+[ **processor features** { processor\_feature }\ :sup:`+` ]
+
+[ **calls** ( { subprogram\_call\_sequence }\ :sup:`+` \|
+none\_statement ) ]
+
+[ **connections**
+
+( { connection \| connection\_refinement }\ :sup:`+` \| none\_statement
+) ]
+
+[ **flows** ( { flow\_implementation \|
+
+end\_to\_end\_flow \| end\_to\_end\_flow \_refinement }\ :sup:`+`
+
+\| none\_statement ) ]
+
+[modes\_subclause ]
+
+[ **properties** ( { property\_association \|
+contained\_property\_association }\ :sup:`+`
+
+\| none\_statement ) ]
+
+{ annex\_subclause }\ :sup:`\*`
+
+**end**  ;
+
+
+
+4. Refinement identifiers of prototype, subcomponent, and connection
+   refinements must exist in the local namespace of an ancestor
+   component implementation.
+
+5. In a component implementation extension, the component type
+   identifier of the component implementation being extended, which
+   appears after the reserved word **extends**, must be the same as or
+   an ancestor of the component type of the extension. The component
+   implementation being extended may exist in another package. In this
+   case the component implementation name is qualified with the package
+   name.
+
+6. When a component implementation **extends** another component
+   implementation, the local namespace of the extension is a superset of
+   the local namespace of the ancestor. That is, the local namespace of
+   a component implementation inherits all the identifiers in the local
+   namespaces of its ancestors (including the identifiers of their
+   respective component type namespaces).
+
+
+Legal
+
+
+3.  If the component implementation extends another component
+implementation, the category of both must match, i.e., they must
+be identical or the category being extended must be
+**abstract**.
+
+
+*Standard Properties*
+
+Classifier Substitution Rule: **inherit** **enumeration** (Classifier
+Match, Type Extension, Signature Match)
+
+This property is not a property on the component, but an annotation about replacement of classifiers in feature refinement.
+
+semantics
+
 

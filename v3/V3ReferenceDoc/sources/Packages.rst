@@ -24,7 +24,7 @@ Syntax
 | package\_name ::= *package*\_identifier { **.** *package*\_identifier }\ :sup:`\*`
 | 
 | package\_content\_declaration ::=
-| component_classifier\_declaration
+| component\_classifier\_declaration
 | \| type\_declaration
 | \| property\_definition
 | \| package\_declaration
