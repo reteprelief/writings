@@ -20,41 +20,21 @@ Syntax
 |   { import\_declaration }\ :sup:`\*`
 |   { package\_content\_declaration }\ :sup:`\*`
 | **end**  **;**
-
-
-package\_name ::=
-
-*package*\_identifier { **.** *package*\_identifier }\ :sup:`\*`
-
-
-package\_content\_declaration ::=
-
-component_classifier\_declaration
-
-\| type\_declaration
-
-\| property\_definition
-
-\| package\_declaration
-
-\| annex\_library
-
-
-import\_declaration ::=
-
-**import** import\_reference { **,** import\_reference  }\ :sup:`\*` **;**
-
-
-name\_path ::=
-identifier { **.** identifier }\ :sup:`\*`
-
-import\_reference ::=
-name\_path ** . \* ** ?
-
-
-properties\_subclause ::=
-**properties** { property\_association }\ :sup:`+`
-
+| 
+| package\_name ::= *package*\_identifier { **.** *package*\_identifier }\ :sup:`\*`
+| 
+| package\_content\_declaration ::=
+| component_classifier\_declaration
+| \| type\_declaration
+| \| property\_definition
+| \| package\_declaration
+| \| annex\_library
+| 
+| import\_declaration ::= **import** import\_reference { **,** import\_reference  }\ :sup:`\*` **;**
+| 
+| name\_path ::= identifier { **.** identifier }\ :sup:`\*`
+| 
+| import\_reference ::= name\_path[. \*]
 
 
 Naming Rules
@@ -119,17 +99,13 @@ text. This approach makes AADL scalable in handling large models.
 Examples
 --------
 
-**package** Aircraft.Cockpit
-
-**import** Avionics.DataTypes.\*, Management\_Properties.\*;
-
-**system** MFD
-
-Airdata: **in data port** AirData ;
-
-**end** ;
-
-#Author => "Feiler";
-
-**end** ;``
+| **package** Aircraft.Cockpit
+| **import** Avionics.DataTypes.\*, Management\_Properties.\*;
+| 
+| **system** MFD
+| Airdata: **in data port** AirData ;
+| **end** ;
+| 
+| #Author => "Feiler";
+| **end** ;``
 
