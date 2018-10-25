@@ -325,11 +325,11 @@ Syntax
 | 
 | primitive\_type\_reference ::= *primitive\_type\_*package\_content\_reference
 | 
-| array\_dimensions ::= { array\_dimension  }\ :sup:`+`
+| array\_dimensionsï¿½::= { array\_dimensionï¿½ }\ :sup:`+`
 | 
-| array\_dimension ::= **[** [ array\_dimension\_size ] **]**
+| array\_dimensionï¿½::= **[** [ array\_dimension\_sizeï¿½] **]**
 | 
-| array\_dimension\_size ::= numeral \| unique\_property\_constant\_identifier
+| array\_dimension\_sizeï¿½::= numeral \| unique\_property\_constant\_identifier
 | 
 | nested\_subcomponent\_declaration ::= 
 | [ array\_dimensions ] **{** { property\_association \| subcomponent \| feature \| connection }\ :sup:`+` **}**
@@ -338,10 +338,10 @@ Syntax
 | 
 | -- array selection used in contained property association and references
 | 
-| array\_selection ::=
+| array\_selectionï¿½::=
 | { **[** selection\_range **]** }\ :sup:`+`
 | 
-| selection\_range ::= numeral [ **..** numeral ]
+| selection\_rangeï¿½::= numeral [ **..** numeral ]
 
 Naming Rules
 ^^^^^^^^^^^^
@@ -419,17 +419,17 @@ in AADL.
 
 **thread interface ** Init\_Samples
 
-OrigSet : **requires data access** Sample\_Set;
+OrigSetï¿½: **requires data access** Sample\_Set;
 
-SampleSet : **requires data access** Sample\_Set;
+SampleSetï¿½: **requires data access** Sample\_Set;
 
 **end** ;
 
 **thread interface ** Collect\_Samples
 
-Input\_Sample : **in event data port** Sample;
+Input\_Sampleï¿½: **in event data port**ï¿½Sample;
 
-SampleSet : **requires data access** Sample\_Set;
+SampleSetï¿½: **requires data access** Sample\_Set;
 
 **end** ;
 
@@ -440,7 +440,7 @@ Input\_Sample#Source\_Name => InSample;
 
 **thread interface** Distribute\_Samples
 
-SampleSet : **requires data access** Sample\_Set;
+SampleSetï¿½: **requires data access**ï¿½Sample\_Set;
 
 UpdatedSamples : **out event data port** :Sample;
 

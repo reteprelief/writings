@@ -2,7 +2,7 @@ General AADL Concepts
 =====================
 
 Naming Rules
-^^^^^^%^^^^^
+^^^^^^^^^^^^
 
 1. AADL is a case sensitive language.
 
