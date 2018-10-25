@@ -34,12 +34,6 @@ Component interfaces and configurations can also be specified as *composition* o
  conventional programming languages, application modeling languages, nor does it restrict the lower-level representation(s) used for
  physical hardware component designs, e.g., circuit diagrams,hardware behavioral descriptions.
  
- Syntax
- ^^^^^^
- 
- component\_classifier ::= component\_interface \| component\_implementation \| configuration
- 
-
 Component Interfaces
 --------------------
 
