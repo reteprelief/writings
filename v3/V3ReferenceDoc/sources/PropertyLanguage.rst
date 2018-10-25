@@ -1,5 +1,7 @@
 Properties
 ==========
+| 
+| property_reference ::= [ *relative_*name\_path ] **#** *property\_*name\_path
 
  A property provides information about model elements, i.e.,
 component types, component implementations, subcomponents, features,

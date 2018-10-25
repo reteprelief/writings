@@ -78,13 +78,15 @@ Syntax
 | 
 | composite\_category ::= **system**
 | 
-| component\_interface\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` *component\_interface\_*identifier
+| component\_interface\_reference ::= *component\_interface\_*package\_content\_reference
 
 
 Naming Rules
 ^^^^^^^^^^^^
 
 1. A component interface introduces a local name space for defining identifiers of component interface content. Such content is feature declarations, mode declarations, and flow specification declarations.
+
+#. The defining name of a component interface is a single identifier. 
 
 Legality Rules
 ^^^^^^^^^^^^^^
@@ -168,18 +170,18 @@ flow\_implemention \| end\_to\_end\_flow \| mode \| mode\|transition \| annex\_s
 **end** **;**
 
 
-component\_implementation\_name ::=
-
-*component\_interface*\_identifier **.** *component\_implementation*\_identifier
+component\_implementation\_name ::= *component\_interface*\_identifier **.** *component\_implementation*\_identifier
 
 
-component\_implementation\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` component\_implementation\_name
+component\_implementation\_reference ::= *component\_interface\_*package\_content\_reference **.** *component\_implementation*\_identifier
 
 
 Naming Rules
 ^^^^^^^^^^^^^
 
-1. The component interface identifier of the defining component implementation name must be accessible in the package name space that contains the component implementation declaration, i.e., either declared in the same package or made accessible by a *import* declaration. 
+1. The defining name of a component implementation consists of two <dot> separated identifiers. 
+
+#. The component interface identifier of the defining component implementation name must exist in the name space of the package containing the component implementation definition or it must be visible through an *import* declaration. 
 
 #. The component implementation identifier of the defining component implementation name must be unique within the name space of the component interface.
 
@@ -216,7 +218,7 @@ Consistency Rules
 Semantics
 ^^^^^^^^^
 
- A component implementation defines the internal structure of a
+A component implementation defines the internal structure of a
 component represented by subcomponents. Interaction between
 subcomponents is expressed by the connections, flows, and bindings. Modes allow users to specify alternative runtime
 configurations, i.e., subcomponent and connections can be active only in specific modes.
@@ -224,7 +226,7 @@ A component implementation and its content has property values to express its
 non-functional attributes such as safety level or execution time.
 
 A component implementation is defined in the context of a component interface.
-All external interactions occur through the features of the interface, i.e., the interface enforces connectivity to external components.
+All external interactions only occur through the features of the interface, i.e., the interface enforces connectivity to external components.
 
 A component interface can have multiple implementations. A component implementation
 can be viewed as a component variant 
@@ -262,60 +264,41 @@ a actual system.
 
 Examples
 ^^^^^^^^
+::
+ package ImplementationExample
+ 
+   type Bool\_Type;
 
-**package** ImplementationExample
+   thread interface DriverModeLogic
+     BreakPedalPressed : in data port Bool\_Type;
+     ClutchPedalPressed : in data port Bool\_Type;
+     Activate : in data port Bool\_Type;
+     Cancel : in data port Bool\_Type;
+     OnNotOff : in data port Bool\_Type;
+     CruiseActive : out data port Bool\_Type;
+   end ;
 
-**type** Bool\_Type;
+ -- Two implementations whose source files are identified as Simulink and C files
 
-**thread** **interface** DriverModeLogic
+   thread DriverModeLogic.Simulink
+     #Dispatch\_Protocol=>Periodic;
+     #Period=> 10 ms;
+     #Source\_File => "CruiseControlActive.mdl";
+   end ;
 
-BreakPedalPressed : **in data port** Bool\_Type;
-
-ClutchPedalPressed : **in data port** Bool\_Type;
-
-Activate : **in data port** Bool\_Type;
-
-Cancel : **in data port** Bool\_Type;
-
-OnNotOff : **in data port** Bool\_Type;
-
-CruiseActive : **out data port** Bool\_Type;
-
-**end** **;**
-
--- Two implementations whose source texts use different variable names
-
--- for their cruise active port
-
-**thread** DriverModeLogic.Simulink
-
-#Dispatch\_Protocol=>Periodic;
-
-#Period=> 10 ms;
-
-CruiseActive#Source\_Name => CruiseControlActive;
-
-**end** DriverModeLogic.Simulink\ **;**
-
-**thread** DriverModeLogic.C
-
-#Dispatch\_Protocol=>Periodic;
-
-#Period=> 10 ms;
-
-#CruiseActive#Source\_Name => CCActive;
-
-**end** **;**
-
-**end** **;**
-
+   thread DriverModeLogic.C
+     #Dispatch\_Protocol=>Periodic;
+     #Period=> 10 ms;
+     #Source\_File => "CruiseControlActive.c";
+   end ;
+ end ;
 
 
 
 Subcomponents
 -------------
 
- A *subcomponent* represents a component instance contained within another component,. It is declared within a component implementation.
+ A *subcomponent* represents a component instance contained within another component. It is declared within a component implementation.
 Subcomponent declarations specify the component category and a component classifier or in the case of a data component primitive type. 
 If the subcomponent classifier is an implementation or a configuration then it identifies the next layer of component instances in the component hierarchy.
 
@@ -330,48 +313,35 @@ A subcomponent declaration may include a specification of nested subcomponents w
 Syntax
 ^^^^^^
 
-subcomponent ::=
-
-*defining\_subcomponent*\ \_identifier :
-
-component\_category
-
-( type\_reference [ array\_dimensions ] [ **{** { property\_association  }\ :sup:`+` **}** ]
-
-\| [ array\_dimensions ] **{** { property\_association \| nested\_subcomponent }\ :sup:`+` **}** )
-
-[ component\_in\_modes ] **;**
-
-
-type\_reference ::= component\_classifier\_reference \| primitive\_type\_reference
-
-component\_classifier\_reference ::= component\_interface\_reference \| component\_implementation\_reference \| component\_configuration\_reference
-
-primitive\_type\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` *primitive\_type\_*identifier
-
-array\_dimensions ::= { array\_dimension  }\ :sup:`+`
-
-
-array\_dimension ::= **[** [ array\_dimension\_size ] **]**
-
-
-array\_dimension\_size ::= numeral \| unique\_property\_constant\_identifier
-
-
-nested\_subcomponent ::= subcomponent \| feature \| connection
-
-
-subcomponent\_reference ::=  identifier [ array\_selection ]
-
--- array selection used in contained property association and references
-
-array\_selection ::=
-
-{ **[** selection\_range **]** }\ :sup:`+`
-
-selection\_range ::=
-
-numeral [ **..** numeral ]
+| subcomponent ::=
+| *defining\_subcomponent\_*identifier **:** component\_category
+| ( type\_reference [ array\_dimensions ] [ **{** { property\_association  }\ :sup:`+` **}** ] }
+| \| nested\_subcomponent\_declaration
+| **;**
+| 
+| type\_reference ::= component\_classifier\_reference \| primitive\_type\_reference
+| 
+| component\_classifier\_reference ::= component\_interface\_reference \| component\_implementation\_reference \| component\_configuration\_reference
+| 
+| primitive\_type\_reference ::= *primitive\_type\_*package\_content\_reference
+| 
+| array\_dimensions ::= { array\_dimension  }\ :sup:`+`
+| 
+| array\_dimension ::= **[** [ array\_dimension\_size ] **]**
+| 
+| array\_dimension\_size ::= numeral \| unique\_property\_constant\_identifier
+| 
+| nested\_subcomponent\_declaration ::= 
+| [ array\_dimensions ] **{** { property\_association \| subcomponent \| feature \| connection }\ :sup:`+` **}**
+| 
+| subcomponent\_reference ::=  identifier [ array\_selection ]
+| 
+| -- array selection used in contained property association and references
+| 
+| array\_selection ::=
+| { **[** selection\_range **]** }\ :sup:`+`
+| 
+| selection\_range ::= numeral [ **..** numeral ]
 
 Naming Rules
 ^^^^^^^^^^^^
@@ -384,15 +354,12 @@ Legality Rules
 
 1. The category of the referenced component classifier must be the same as the category of the subcomponent declaration, or it may be a *generic* component classifier.
 
-2. If the category of a subcomponent declaration is *data*, then its must reference a primitive type.
+#. If the category of a subcomponent declaration is *data*, then its must reference a primitive type.
 
 #. The classifier of a subcomponent cannot recursively contain subcomponents with the same component classifier. In other words, there cannot be a cyclic containment dependency between components.
 
+#. A nested subcomponent declaration must either contain subcomponent and connection definitions or contain feature definitions.
 
-Standard Properties
-^^^^^^^^^^^^^^^^^^^
-
-Acceptable Array Size: **list of** Size Range
 
 Semantics
 ^^^^^^^^^
@@ -400,8 +367,6 @@ Semantics
 Subcomponent declarations represent component instances.
 Subcomponents are instantiated when the containing component
 implementation is instantiated. Similarly, if the subcomponent declaration references a component implementation or configuration, its subcomponents are instantiated recursively.
-
-A mode specific runtime configuration of components can be defined by indicating the set of modes in which a subcomponent is active.
 
 An array of subcomponents represents a collection of
 the same component instance. This array may have one or more dimensions. 
@@ -589,12 +554,16 @@ Configurations
 
 A configuration declaration allow users to configure an existing architecture design by expanding its component hierarchy, but not change it. A configuration declaration can
 
-* assign a component implementation or configuration with previously declared subcomponent, which will be used during model instantiation
-* assign a primitive type or component interface to features 
+* assign a component implementation or configuration with previously declared subcomponents down the component hierarchy, which will be used during model instantiation
+* assign a primitive type or component interface to features of components in the component hierarchy
 * associate property values with existing model elements down the component hierarchy
 * associate annex subclauses to classifiers
 
-A configuration is related to a component implementation or another configuration.
+A configuration is declared with respect to a component implementation or another configuration.
+
+A configuration can be parameterized. If a parameterized configuration is assigned to a subcomponent, then the component hierarchy represented by the subcomponent can only be configured through the parameters.
+
+!!! Assignment or property values into a parameterized configuration.
 
 Syntax
 ^^^^^^
@@ -603,52 +572,70 @@ Syntax
 | **configuration** *defining\_*configuration\_name [ configuration\_parameters ] 
 | [ classifier\_extensions ]
 | **is**
-| { configuration\_assignment \| property\_association }\ :sup:`\*`
+| configuration\_content
 | **end** **;**
 | 
 | configuration\_name ::= *component\_interface*\_identifier **.** *configuration*\_identifier
 | 
-| configuration\_reference ::= { *package\_*identifier **.** }\ :sup:`\*` configuration\_name
+| configuration\_reference ::= *component\_interface\_*package\_content\_reference **.** configuration\_identifier
 | 
 | configuration\_parameter ::= *defining\_parameter\_*identifier **:** expected\_type\_reference
 | 
-| configuration\_assignment ::= 
-| model\_element\_reference **=>** 
-| ( assigned\_configuration\_value [ nested\_configuration ] ) \| nested\_configuration
+| configuration\_content ::= { configuration\_assignment \| property\_association \| mode\_assignment }\ :sup:`\*`
+| 
+| configuration\_assignment ::= model\_element\_reference **=>** 
+| ( assigned\_configuration\_value [ sub\_configuration ] ) \| sub\_configuration
 | 
 | assigned\_configuration\_value ::= primitive\_type\_reference \| component\_implementation\_reference \| configuration\_reference \| configuration\_parameter\_reference
 | 
-| nested\_configuration ::= **{** { configuration\_assignment \| property\_association }\ :sup:`\*` **}**
-| 
-| model\_element\_reference ::= identifier { **.** identifier }\ :sup:`\*`
+| sub\_configuration ::= **{** configuration\_content **}**
 
 Naming Rules
 ^^^^^^^^^^^^
+1. The defining name of a configuration consists of two <dot> separated identifiers. 
 
-1. The component interface identifier of the defining configuration name must be accessible in the package name space that contains the component implementation declaration, i.e., either declared in the same package or made accessible by a *import* declaration. 
+#. The component interface identifier of the defining configuration name must exist in the name space of the package containing the configuration definition or it must be visible through an *import* declaration. 
+
 #. The configuration identifier of the defining configuration name must be unique within the name space of the component interface.
-#. The configuration 
+
 #. The configuration defines a name space for the defining identifiers of its parameters.  
-#. The configuration name space inherits the name space of the  component interface as well as the name spaces of classifiers listed in the extension. 
-#. Model element references of configuration assignments are resolved in the context of the configuration name space. In the case of nested configuration assignments the name space of the model element of the enclosing configuration assignment is used.
-#. The referenced model element must be a subcomponent or a feature.
-#. The assigned configuration value must be a reference that is accessible in the name space of the enclosing package or the local name space.
+
+#. The configuration name space inherits the name space of the component interface. Defining identifiers of configuration must not conflict with defining identifiers of the respective component interface content.
+
+#. The model element reference of configuration assignments is resolved in the context of the configuration name space. In the case of configuration assignments in subconfigurations the name space of the model element referenced by the enclosing configuration assignment is used.
 
 Legality Rules
 ^^^^^^^^^^^^^^
 
-#. For subcomponent model element references the assigned configuration value must be a component implementation or configuration.
+1. For subcomponent model element references that are not data components the assigned configuration value must be a component implementation or configuration. 
+
+#. For data subcomponent model element references the assigned value must be a primitive type. !!!No previous value or an extension of the previous value.
+
+#. In the case a component implementation is assigned to a subcomponent the previous classifier of the subcomponent must be the component interface for the implementation.
+
+#. In the case a configuration is assigned to a subcomponent it must be an extension of a previously assigned component interface or implementation. 
+
+#. If a subconfiguration contains configuration assignments or mode assignments then the referenced model element of the configuration assignment with the subconfiguration must be a subcomponent. 
+
+#. For feature model element references to ports, data access features, or abstract features, the assigned configuration value must be a primitive type. For other access features it must be a compatible component classifiers. 
+
+#. !!! assignment of primitive types to subcomponents or any value to features: no type before vs. extension of previously assigned type.
 
 Semantics
 ^^^^^^^^^
 
 A configuration can elaborate an existing architecture design by expanding its component hierarchy, but not change it. 
+It does so by assigning to an existing subcomponent a component implementation, if the original classifier is a component interface, or a configuration that is an extension of a previously assigned component implementation.. 
+
 A configuration can assign component classifiers or primitive types with features.
+
 A configuration can associate property values to any model element within the component hierarchy represented by the configuration. 
-Finally, configuration can add annex subclauses to components in the component hierarchy within the subcomponent.
+
+A configuration can add annex subclauses to components in the component hierarchy within the subcomponent.
 
 
 If the component configuration is parameterized parameter actuals may be included with the configuration reference.
+
 If the category is *data* then a primitive type reference identifies the data type. A primitive type is one of the predeclared base types or a user defined type.
 
 If the referenced component configuration is parameterized then parameter actuals may be included with the configuration reference.
@@ -665,7 +652,7 @@ A component interface can be an extension of one or composition of multiple comp
 
 A component implementation can be an extension of one component implementation. 
 
-A configuration is always defined as an extension of one component implementation or configuration, or as composition of multiple configurations. 
+A configuration can be an extension of one component implementation or configuration, or as composition of multiple configurations. 
 
 Component classifier extensions and compositions form an *extension hierarchy* with the original referred to as *ancestor* and the extension as *descendant*.
 
@@ -695,13 +682,6 @@ classifier\_extensions ::=
 2. If the extended component type and an ancestor component type in the
    extends hierarchy contain modes subclauses, they must both have only mode declarations or requires\_mode declarations.
    
-
-*Standard Properties*
-
-Classifier Substitution Rule: **inherit** **enumeration** (Classifier
-Match, Type Extension, Signature\_Match)
-
-This property is not a property on the component, but an annotation about replacement of classifiers in feature refinement.
 
 *Semantics*
 
@@ -757,52 +737,6 @@ implementation of the ancestor component type *GPS*. The component
 type and implementation extension hierarchy is illustrated in Figure
 3.
  
-*Syntax*
-
-component\_category *defining\_*component\_implementation\_name
-
-**extends** unique\_component\_implementation\_reference 
-
-
-[ **subcomponents **
-
-( { subcomponent \| subcomponent\_refinement }\ :sup:`+` \|
-none\_statement ) ]
-
-[ **internal features** { internal\_feature }\ :sup:`+` ]
-
-[ **processor features** { processor\_feature }\ :sup:`+` ]
-
-[ **calls** ( { subprogram\_call\_sequence }\ :sup:`+` \|
-none\_statement ) ]
-
-[ **connections**
-
-( { connection \| connection\_refinement }\ :sup:`+` \| none\_statement
-) ]
-
-[ **flows** ( { flow\_implementation \|
-
-end\_to\_end\_flow \| end\_to\_end\_flow \_refinement }\ :sup:`+`
-
-\| none\_statement ) ]
-
-[modes\_subclause ]
-
-[ **properties** ( { property\_association \|
-contained\_property\_association }\ :sup:`+`
-
-\| none\_statement ) ]
-
-{ annex\_subclause }\ :sup:`\*`
-
-**end**  ;
-
-
-
-4. Refinement identifiers of prototype, subcomponent, and connection
-   refinements must exist in the local namespace of an ancestor
-   component implementation.
 
 5. In a component implementation extension, the component type
    identifier of the component implementation being extended, which
@@ -828,14 +762,5 @@ implementation, the category of both must match, i.e., they must
 be identical or the category being extended must be
 **abstract**.
 
-
-*Standard Properties*
-
-Classifier Substitution Rule: **inherit** **enumeration** (Classifier
-Match, Type Extension, Signature Match)
-
-This property is not a property on the component, but an annotation about replacement of classifiers in feature refinement.
-
-semantics
 
 
