@@ -23,7 +23,7 @@ Section 8.
  A *feature* is a part of a component type definition that specifies
 how that component interfaces with other components in the system.
 
- *Feature groups* represent groups of component features. Feature
+ *Named interfaces* represent groups of component features. Feature
 groups can contain feature groups. Feature groups can be used
 anywhere features can be used. Within a component, the features of a
 feature group can be connected to individually. Outside a component,
@@ -144,6 +144,15 @@ Naming Rules
 
 4. The path of a contained property association for a feature must refer
    to an element of a feature group.
+
+
+Naming Rules
+^^^^^^^^^^^^
+
+#. A named interface declaration introduces a local name space for the content of the referenced interface.
+
+#. The content of a named interface is referenced by (recursively) qualifying its identifier with the identifier of the enclosing named interface.
+
 
 Legality Rules
 

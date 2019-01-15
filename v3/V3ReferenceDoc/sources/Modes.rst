@@ -194,6 +194,13 @@ then mode transitions can be added in the component
 implementation. These mode transitions may be triggered by ports of the component interface or by ports of subcomponents.
 
 
+#. If the component interface contains requires\_mode declarations then it
+must not contain any mode or mode transition declarations. 
+
+#. In case of component interface extensions, only one interface being extended can contain mode related definitions. 
+If the extensions adds mode related definitions, then they must be requires\_mode declaration if the inherited declarations are requires\_mode, 
+or they must be mode and transition definitions if the inherited definitions are modes and transitions.
+
 Standard Properties
 
 Mode Transition Response: **enumeration** ( emergency, planned )

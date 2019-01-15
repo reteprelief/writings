@@ -4,20 +4,18 @@ Components
 Component classifiers are used to specify components in an embedded software system architecture. AADL supports three types of component classifiers:
  
 1. *Component interface*: a component specification that represents the external interface to a component. It consists of *features* that represent interaction points with other components, 
-*flows* from incoming features to outgoing features, externally visible modes, and property values associated with the component, its features, and flows.
+*flows* from incoming features to outgoing features, externally visible *modes*, and *property values* associated with the component, its features, and flows.
  
-2. *Component implementation*:  a component blue print that represents how a component is realized in terms of interconnected subcomponents. A *subcomponent* represent component instances based on a specification identified by a component classifier. Connections specify flow between features of different subcomponents or a subcomponent feature and its own feature.
-Flow implementations elaborate on a flow from an incoming to an outgoing feature by identifying connections and subcomponents involved in the flow. A component implementation may also specify a binding from an software application component to a platform component.
-Bindings specify the binding of a software subcomponent to a platform component. A component implementation and its elements can have property values. 
+2. *Component implementation*:  a component blue print that represents how a component is realized in terms of interconnected subcomponents. A *subcomponent* represents a component instances based on a specified component classifier. *Connections* specify flow between features of different subcomponents or between a subcomponent feature and the component's own feature.
+*Flow sequences* elaborate on a flow from an incoming to an outgoing feature or an end to end flow from one subcomponent to another by identifying connections and subcomponents involved in the flow. 
+*Bindings* specify the binding of a software subcomponent to a platform component. A component implementation and its elements can have *property values* assigned. 
  
-3. *Configuration*: a configuration configures aspects of a component implementation. Once configured those aspects cannot be changed by further configuration. It assigns component implementations to subcomponents (including nested subcomponents) that initially have a component interface assigned. In addition it assigns property values to any model element within the component hierarchy of the component implementation.
- It also specifies bindings between application and platform components. 
+3. *Configuration*: a configuration configures aspects of a component implementation. Configuration assignments associate component implementations and configurations with subcomponents, including nested subcomponents. Configurations assign collection of property values to any model element within the hierarchy of the component implementation for which the configuration is defined.
+ A configuration also specifies bindings between application and platform components. Once configured those aspects cannot be changed. 
  
 A component has a *component category*. It can be defined as a generic component (using the keyword **component**), or it can represent a specific software or hardware entity through one of the following component *categories*: 
-*thread*, *thread group*, *process*, *data,*
-*subprogram*, *subprogram group*, 
-*memory*, *bus*, *virtual bus*, *processor*, *virtual processor*,
-*device*, and *system*. The specific meaning of each of the component categories are described in later sections. 
+
+ *thread*, *thread group*, *process*, *data*, *subprogram*, *subprogram group*, *memory*, *virtual memory*, *bus*, *virtual bus*, *processor*, *virtual processor*, *device*, and *system*. The specific meaning of each of the component categories are described in later sections. 
 
 A component can have multiple implementations. They represent variants of a component that adhere to the
 same interface.  
@@ -41,16 +39,18 @@ that its implementations satisfy. It consists of features, flows, modes, annex s
 
 Features of a component represent interaction points with other components. Features are incoming and outgoing ports, required and provided access to data components, required and provided remote subprogram call, required and provided bus access, binding points between application and platform components, and named interfaces representing collections of features defined in a separate component type.
 
-Flow specifications represent information flow from its incoming features to its outgoing features. The realization of each flow is specified in detail in each component implementation.
+Flow specifications represent information *flow paths* from its incoming features to its outgoing features, *flow sources* starting within a component through its outgoing features, and *flow sinks* through its incoming features terminating within a component. The realization of each flow is specified in detail in each component implementation.
 
 A component interface may declare modes and mode transitions. This allows users to characterize modal components and externally triggering mode transitions. 
 Mode-specific property values can be associated with the component interface, its features, and its flows.  
 
 A component interface may include annex subclauses that provide annotations expressed in specific annex sublanguages, e.g., fault behavior expressed in the Error Model V2 (EMV2) annex notation.
 
-A component interface can be defined as extension of other component interfaces. An extension can add features, flows, modes, annex subclauses, and associated property values. An extension can also configure a feature with a primitive type or component classifier.
+A component interface can be defined as extension of other component interfaces. An extension inherits all elements of the interface being extended. An extension can add features, flows, modes, annex subclauses, and associated property values. An extension can also configure a feature with a data type or component classifier.
 
-A component interface can also be defined as a composition of multiple component interfaces. In this case all content of the interfaces being combined are available in the resulting interface. 
+A component interface can also be defined as extension, i.e., composition, of multiple component interfaces. In this case all elements of the interfaces being extended are combined to become part of the resulting composite interface. 
+
+A component interface can contain named interface declarations. the named interface declaration represents a collection of features that can be referenced as a group. Named interface declarations allow multiple instances of the same interface to be used in a component.
 
 Syntax
 ^^^^^^
@@ -58,18 +58,15 @@ Syntax
 | component\_interface\_definition ::=
 | [ component\_category ] **interface** *defining\_*component\_interface\_name 
 | [ **extends** [ **reverse** ] component\_interface\_reference  { **,** [ **reverse** ] component\_interface\_reference }\ :sup:`\*` ]
-| [ **is** { feature \| flow\_spec \| mode \| mode\|transition \|required_mode \| annex\_subclause \| property\_association \| configuration\_assignment }\ :sup:`\*` ]
-| **end** **;**
+| [ **is** interface\_element { **;** interface\_element }\ :sup:`\*` [ **;** ] ]
+| **end ;**
 |
 | component\_interface\_name ::= identifier
 |  
 | component\_category ::=
-| generic\_component\_category
-| \| software\_category
-| \| execution\_platform\_category
-| \| composite\_category
+|   generic\_component\_category \| software\_category \| execution\_platform\_category \| composite\_category
 | 
-| generic\_component\_category ::= **component**
+| generic\_component\_category ::= **abstract**
 | 
 | software\_category ::= **data** \| **subprogram** \| **subprogram group** \| **thread** \| **thread group** \| **process **
 | 
@@ -78,30 +75,32 @@ Syntax
 | composite\_category ::= **system**
 | 
 | component\_interface\_reference  ::= [ *qualifying\_*package\_name **.** ] component\_interface\_name
+| 
+| named\_interface ::= *defining\_named\_interface\_*identifier **:** **interface** [ **reverse** ] component\_interface\_reference **;**
+| 
+| named\_interface\_feature\_reference ::= { *named\_interface\_*identifier **.** }\ :sup:`\*` *feature\_*identifier
+|
+| interface\_element ::=
+|   feature \| flow\_spec \| mode\_spec \| annex\_subclause \| property\_association \| configuration\_assignment
 
 
 Naming Rules
 ^^^^^^^^^^^^
 
-1. A component interface definition introduces a local name space for defining identifiers of features, modes and transitions, and flow specifications.
+1. A component interface definition introduces a local name space for defining identifiers of its content.
 
-#. A component interface reference resolves according to naming rules for component classifier references. 
+#. A component interface reference resolves according to naming rules described for component classifier references. 
 
-#. Defining identifiers contained in component interfaces being extended are inherited into the namespace of the component interface definition, i.e., they must remain unique. This means there cannot be two definitions with the same name in any interface being extended and any definition added in the interface definition.
+#. A component interface extension inherits the name space of the interfaces being extended. This means there cannot be two definitions with the same name in different interfaces being extended or a definition added in the extension.
 
 Legality Rules
 ^^^^^^^^^^^^^^
 
 1. The component category of the component interface definition must be the same as the category of any component interface being extended, or the component interface being extended must have been defined without a category.
 
-#. If the component interface contains requires\_mode declarations then it
-must not contain any mode or mode transition declarations. 
+#. Configuration assignments to assign a data type or component classifier to a feature can only be declared in component interface extensions. 
 
-#. In case of component interface extensions, only one interface being extended can contain mode related definitions. 
-If the extensions adds mode related definitions, then they must be requires\_mode declaration if the inherited declarations are requires\_mode, 
-or they must be mode and transition definitions if the inherited definitions are modes and transitions.
-
-#. Configuration assignments to assign a primitive type or component classifier to a feature can only be declared in component interface extensions. 
+#. There must only be one property association for the same component property in any of the interfaces being extended.
 
 Semantics
 ^^^^^^^^^
@@ -112,16 +111,19 @@ that users of the component can depend on. All interactions of this component wi
 
 The interface specification includes: 
 
-* features as interaction points for connections and bindings, 
-* flow specifications indicating flow sources, sinks, and paths from incoming to outgoing features, 
-* externally visible mode behavior, and 
-* property values associated with the component and its content. Property values may be mode specific. 
+1. *features* as interaction points for connections and bindings, 
+#. *flow specifications* indicating flow sources, sinks, and paths from incoming to outgoing features, 
+#. *mode specifications* indicating externally visible mode behavior, 
+#. *annex subclauses* that specify additional characteristics of the component, and 
+#. *property values* associated with the component and its content. Property values may be mode specific. 
 
-Component interface extensions introduce an inheritance hierarchy for definitions and property value associations contained in interfaces. Inherited and local definitions must have unique names. Local property value associations may override previously associated values.
+Component interface extensions introduce an inheritance hierarchy for feature definitions, flow specifications, mode specification, and property value associations. Inherited and local definitions must have unique names. Local property value associations may override previously associated values.
 
 Component interface extension and composition allows users to represent related systems and provide libraries of common interface specifications. 
 
-The same component interface can be included multiple times through the use of *named interface* feature declarations (see *Features* chapter). Similarly, different component interfaces with conflicting features can be combined through the use of *named interface* feature declarations.
+The direction of directional features in an interface being extended is reversed if the keyword **reverse** is specified. 
+
+The same component interface can be included multiple times through the use of *named interface* declarations (see section Features). Similarly, different component interfaces with conflicting features can be combined through the use of *named interface* declarations.
 
 Examples
 ^^^^^^^^
@@ -131,62 +133,62 @@ Examples
 | 
 | **system** **interface** File\_System
 | -- access to a data component
-| root: **requires data access** Directory;
+|   root: **requires data access** Directory;
 | **end** ;
 | 
 | **process** **interface** Application
 | -- a data out port
-| result: **out data port** App.result\_type;
-| home: **requires** **data access** Directory;
+|   result: **out data port** App.result\_type;
+|   home: **requires** **data access** Directory;
 | **end** ;
 | 
 | **thread** **interface** Calculate
 | -- a data out port without a specified type
-| input: **in data port** ;
-| result: **out data port** ;
+|   input: **in data port** ;
+|   result: **out data port** ;
 | **end** ;
 | 
 | **end** ;
 
-::
-package InterfaceComposition
-  interface Logical
-	is
-	temperature : out port ;
-		Speed : out port ;
-  end ;
-  interface Physical
-	is
-	Network : requires bus access CANBus;
-  end ;
-  interface s1 extends Logical
-	is
-	Onemore : out port ;
-  end ;
-  system interface s2 extends Logical , Physical 
-  end ;
-
-  interface s3 extends Logical , Physical
-	is
-	Onemore : out port ;
-  end ;
-
-  bus interface CANBus end;
-end; 
+| package InterfaceComposition
+|   interface Logical
+|   is
+|	  temperature : out port ;
+|	  Speed : out port ;
+|   end ;
+|   interface Physical
+|	is
+|	  Network : requires bus access CANBus;
+|   end ;
+|   interface s1 extends Logical
+|	is
+|	  Onemore : out port ;
+|   end ;
+|   system interface s2 extends Logical , Physical 
+|   end ;
+|
+|   interface s3 extends Logical , Physical
+|	is
+|	  Onemore : out port ;
+|   end ;
+|
+|   bus interface CANBus end;
+| end; 
 
 
 Component Implementations 
 --------------------------
 
- A *component implementation* represents the realization of a
+A component implementation represents the realization of a
 component that satisfies a component interface definition, i.e., all external interactions must occur through features in the interface. 
 
 A component implementation consists of
+
 1. *Subcomponents* that represent instances of component inside a given component. Subcomponents may themselves contain subcomponents leading to a component hierarchy.
 #. *Connections* that represent interactions between subcomponents. 
 #. *Bindings* that represent deployment of application subcomponents to platform subcomponent. 
 #. *Flow sequences* that represent implementations of flow specifications in the component interface, or end-to-end flows with starting and end points within the component implementation. 
-#. *Modes* that represent alternative operational modes that may manifest themselves as alternate configurations of subcomponents, connections, flow sequences, and property values.
+#. *Mode specifications* that represent alternative operational modes that may manifest themselves as alternate configurations of subcomponents, connections, flow sequences, and property values.
 #. *Annex subclauses* that specify additional characteristics of the component.
 #. *Associations of property values* specific to the component implementation and its contained elements.
 
@@ -197,33 +199,33 @@ An extension can also configure a subcomponent with a component classifier or pr
 Syntax
 ^^^^^^
 
-| component\_implementation ::= component\_category *defining\_*component\_implementation\_name 
-| ( **extends** component\_implementation\_reference )?
-| ( **is** { subcomponent  \| connection \| flow\_sequence \| mode \| mode\|transition \| annex\_subclause \| property\_association \| internal\_feature \| processor\_feature}\ :sup:`\*` )?
-**end** **;**
-
-
-component\_implementation\_name ::= *component\_interface*\_identifier **.** *component\_implementation*\_identifier
-
-
-component\_implementation\_reference ::= [ *qualifying\_*package\_name **.** ] *component\_implementation*\_name
-
+| component\_implementation\_definition ::=
+|   component\_category *defining\_*component\_implementation\_name 
+|   [ **extends** component\_implementation\_reference ]
+|   [ **is** implementation\_element { **;** implementation\_element }\ :sup:`\*` [ **;** ] ]
+| **end ;**
+|
+| component\_implementation\_name ::=
+|   *component\_interface*\_identifier **.** *component\_implementation*\_identifier
+| 
+| component\_implementation\_reference ::=
+|   [ *qualifying\_*package\_name **.** ] *component\_implementation*\_name
+| 
+| implementation\_element ::= 
+|   subcomponent \| connection \| flow\_sequence \| mode \| mode\|transition
+|   \| annex\_subclause \| property\_association \| internal\_feature \| processor\_feature
 
 Naming Rules
 ^^^^^^^^^^^^^
 
-1. The defining name of a component implementation consists of two <dot> separated identifiers. 
-
-#. The component interface identifier of the defining component implementation name must exist in the name space of the package containing the component implementation definition or it must be visible through an *import* declaration. 
-
-#. The component implementation identifier of the defining component implementation name must be unique within the name space of the component interface.
+1. The defining name of a component implementation consists of two <dot> identifiers. The first identifier identifies the component interface the implementation is associated with. It must exist in the name space of the package containing the component implementation definition or it must be visible through an *import* declaration. 
 
 #. The component implementation defines a name space for the defining identifiers of its content.  
 
-#. The component implementation name space inherits the name space of the 
+#. The component implementation name space inherits the name space of its associated 
    component interface. Defining identifiers of implementation content must not conflict with defining identifiers of the respective component interface content. 
 
-#. A component implementation extension inherits the namespace of the implementation being extended. 
+#. A component implementation extension inherits the name space of the implementation being extended. 
 
 Legality Rules
 ^^^^^^^^^^^^^^
@@ -244,9 +246,9 @@ must not contain any mode or mode transition declarations.
 
 
 Consistency Rules
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^
 
-1. If the component implementation has subcomponents, then a flow implementation must be specified for each flow specification in the component interface.
+1. If the component implementation has subcomponents, then a flow sequence must be specified for each flow specification in the component interface.
 
 Semantics
 ^^^^^^^^^
@@ -297,58 +299,60 @@ a actual system.
 
 Examples
 ^^^^^^^^
-::
- package ImplementationExample
-   thread interface Filter
-     SensorReading : in data port ;
-     FilteredData : out data port ;
-     #Period=> 20 ms;
-   end ;
 
-   thread interface Processing
-     FilteredData : in data port ;
-     ActuatorCommand : out data port ;
-     #Period=> 20 ms;
-   end ;
-    
-   process interface Controller
-     SensorReading : in data port ;
-     ActuatorCommand : out data port ;
-   end ;
-    
-   process Controller.basic
-     filtering: thread Filter;
-     computing : thread Processing ;
-     FtoC: port filtering.FilteredData -> computing.FilteredData;
-     ItoF: map SensorReading -> filtering.SensorReading;
-     OtoC: map ActuatorCommand -> computing.ActuatorCommand;
-   end ;
-    
- end ;
+| package ImplementationExample
+|   thread interface Filter
+|     SensorReading : in data port ;
+|     FilteredData : out data port ;
+|     #Period=> 20 ms;
+|   end ;
+|
+|   thread interface Processing
+|     FilteredData : in data port ;
+|     ActuatorCommand : out data port ;
+|     #Period=> 20 ms;
+|   end ;
+|   
+|   process interface Controller
+|     SensorReading : in data port ;
+|     ActuatorCommand : out data port ;
+|   end ;
+|    
+|   process Controller.basic
+|     filtering: thread Filter;
+|     computing : thread Processing ;
+|     FtoC: port filtering.FilteredData -> computing.FilteredData;
+|     ItoF: map SensorReading -> filtering.SensorReading;
+|     OtoC: map ActuatorCommand -> computing.ActuatorCommand;
+|   end ;
+|    
+| end ;
 
 
 
 Subcomponents
 -------------
 
- A *subcomponent* represents a component instance contained within another component. It is declared within a component implementation.
+A *subcomponent* represents a component instance contained within another component. It is declared within a component implementation.
 Subcomponent declarations specify the component category and a component classifier or in the case of a data component primitive type. 
 If the subcomponent classifier is an implementation or a configuration then it identifies the next layer of component instances in the component hierarchy.
 
-A subcomponent can be declared as an array. 
-
 A subcomponent can have property values associated as part of the subcomponent declaration. 
+
+A subcomponent can be declared as an array. 
 
 A subcomponent declaration may include a specification of nested subcomponents without explicit component classifier specification.
 
 Syntax
 ^^^^^^
 
-| subcomponent ::= *defining\_subcomponent\_*identifier **:** component\_category
-| ( type\_reference [ array\_dimensions ] [ **{** { property\_association  }\ :sup:`+` **}** ] }
-| \| nested\_subcomponent\_declaration
-| **;**
-| 
+| subcomponent ::=
+|   *defining\_subcomponent\_*identifier **:** component\_category 
+|     typed\_subcomponent\_declaration \| nested\_subcomponent\_declaration
+|
+| typed\_subcomponent\_declaration ::=
+|   ( type\_reference [ array\_dimensions ] [ **{** { property\_association  }\ :sup:`+` **}** ] )
+|
 | type\_reference ::= component\_interface\_reference \| component\_implementation\_reference \| component\_configuration\_reference \| primitive\_type\_reference
 | 
 | nested\_subcomponent\_declaration ::= 
@@ -364,8 +368,7 @@ Syntax
 | 
 | -- array selection used in contained property association and references
 | 
-| array\_selection::=
-| { **[** selection\_range **]** }\ :sup:`+`
+| array\_selection::= { **[** selection\_range **]** }\ :sup:`+`
 | 
 | selection\_range::= numeral [ **..** numeral ]
 
@@ -408,7 +411,7 @@ Nested subcomponents can be declared as part of a subcomponent declaration insid
 
 A component interface can have zero, one, or multiple component
 implementations. If a component interface has zero component
-implementations, then it is considered to be a leaf in the system
+implementations or an implementation without subcomponents, then it is considered to be a leaf in the system
 component hierarchy. For example, an AADL model may have a
 thread as subcomponent with only a component interface declaration. If no implementation is
 associated then the properties on the component interface provides
@@ -441,91 +444,59 @@ required access. The Data Modeling Annex (Annex Document B) provides
 guidance on how to effectively represent data models of applications
 in AADL.
 
-**package** Sampling
+| **package** Sampling
+|
+| **type** Sample { #Data\_Size => 16 Bytes };
+|
+| **type** Sample\_Set { #Data\_Size => 1 MByte };
+|
+| **end** ;
+|
+| **package** SamplingTasks
+|   **with** Sampling;
+|
+|   **thread interface ** Init\_Samples
+|     OrigSet: **requires read access** Sample\_Set;
+|     SampleSet: **requires write access** Sample\_Set;
+|   **end** ;
+|
+|   **thread interface ** Collect\_Samples
+|     Input\_Sample: **in port** Sample;
+|     SampleSet: **requires write access** Sample\_Set;
+|   **end** ;
+|
+|   **thread** Collect\_Samples.Batch\_Update
+|     Input\_Sample#Source\_Name => InSample;
+|   **end** ;
+|
+|   **thread interface** Distribute\_Samples
+|     SampleSet: **requires read access** Sample\_Set;
+|     UpdatedSamples : **out port** :Sample;
+|   **end** ;
+|
+|   **process** Sample\_Manager
+|     Input\_Sample: **in port** Sample;
+|     External\_Samples: **requires read access** Sample\_Set;
+|     Result\_Sample: **out port** Sample;
+|   **end** ;
+|
+|   **process** Sample\_Manager.Slow\_Update
+|     Samples: **data** Sample\_Set { rw: **provides readwrite access** Sample_Set};
+|     Init\_Samples : **thread** Init\_Samples;
+|     -- the required access is resolved to a subcomponent declaration
+|     Collect\_Samples: **thread** Collect\_Samples.Batch\_Update;
+|     Distribute: **thread** Distribute\_Samples;
+|     ISSSConn: **connection** Init\_Samples.SampleSet -> Samples.rw;
+|     ISOSConn: **mapping** External\_Samples => Init\_Samples.OrigSet;
+|     CSSSConn: **connection** Collect\_Samples.SampleSet -> Samples.rw;
+|     CSISConn: **mapping** Input\_Sample => Collect\_Samples.Input\_Sample;
+|     DSSConn: **connection** Distribute.SampleSet -> Samples.rw;
+|     DUSConn: **mapping** Result\_Sample => Distribute.UpdatedSamples ;
+|   **end** ;
+|
+| **end** ;
 
-**type** Sample {#Data\_Size => 16 Bytes;};
-
-**type** Sample\_Set {#Data\_Size => 1 MByte;};
-
-**end** ;
-
-**package** SamplingTasks
-
-**with** Sampling;
-
-**thread interface ** Init\_Samples
-
-OrigSet: **requires data access** Sample\_Set;
-
-SampleSet: **requires data access** Sample\_Set;
-
-**end** ;
-
-**thread interface ** Collect\_Samples
-
-Input\_Sample: **in event data port**�Sample;
-
-SampleSet�: **requires data access** Sample\_Set;
-
-**end** ;
-
-**thread** Collect\_Samples.Batch\_Update
-Input\_Sample#Source\_Name => InSample;
-
-**end** ;
-
-**thread interface** Distribute\_Samples
-
-SampleSet: **requires data access** Sample\_Set;
-
-UpdatedSamples : **out event data port** :Sample;
-
-**end** ;
-
-**process** Sample\_Manager
-
-Input\_Sample: **in event data port** Sample;
-
-External\_Samples: **requires data access** Sample\_Set;
-
-Result\_Sample: **out event data port** Sample;
-
-**end** ;
-
-**process** Sample\_Manager.Slow\_Update
-
-Samples: **data** Sample\_Set;
-
-Init\_Samples : **thread** Init\_Samples;
-
--- the required access is resolved to a subcomponent declaration
-
-Collect\_Samples: **thread** Collect\_Samples.Batch\_Update;
-
-Distribute: **thread** Distribute\_Samples;
-
-Sample\_Filter: **subprogram** Sample\_Subprogram.Simple;
-
-ISSSConn: **data** **access** Samples <-> Init\_Samples.SampleSet;
-
-ISOSConn: **data access** External\_Samples <-> Init\_Samples.OrigSet;
-
-CSSSConn: **data access** Samples <-> Collect\_Samples.SampleSet;
-
-CSISConn: **port** Input\_Sample -> Collect\_Samples.Input\_Sample;
-
-DSSConn: **data access** Samples <-> Distribute.SampleSet;
-
-DUSConn: **port** Distribute.UpdatedSamples -> Result\_Sample;
-
-CSFRConn: **subprogram access** Sample\_Filter <->
-Collect\_Samples.Filtering\_Routine;
-
-**end** ;
-
-**end** ;
-
- This example illustrates the use of arrays in defining a triple
+This example illustrates the use of arrays in defining a triple
 redundancy pattern with a voter. The pattern is defined as generic component that uses data ports. The
 connections are defined with a connection pattern property to
 indicate how the elements of the source array are connected to the
@@ -533,80 +504,62 @@ destination. Each instance of MyProcess is connected to a separate
 port of the Voter. Note that the number of replicates could be kept
 flexible by specifying the array dimension size through a property.
 
-**package** Redundancy
-
-**interface** Triple
-
-input: **in** **data port**;
-
-output: **out data port**;
-
-**end** ;
-
-**component** Triple.impl
-
-MyProcess: **component** Calculate [3];
-
-MyVoter: **component** Voter;
-
-extinput1: **port** input -> MyProcess[1].input;
-
-extinput2: **port** input -> MyProcess[2].input;
-
-extinput3: **port** input -> MyProcess[3].input;
-
-tovoter1: **port** MyProcess[1].output -> MyVoter.input[1];
-
-tovoter2: **port** MyProcess[21].output -> MyVoter.input[2];
-
-tovoter3: **port** MyProcess[3].output -> MyVoter.input[3];
-
-extoutput: **port** MyVoter.output -> output;
-
-**end** ;
-
-**interface** Calculate
-
-input: **in** **data port**;
-
-output: **out data port**;
-
-**end** ;
-
-**interface** Voter
-
-input: **in** **data port** [3];
-
-output: **out data port**;
-
-**end**;
-
-**end** ;
+| **package** Redundancy
+|
+|   **interface** Triple
+|     input: **in** **port**;
+|     output: **outport**;
+|   **end** ;
+|
+|   **abstract** Triple.impl
+|     MyProcess: **abstract** Calculate [3];
+|     MyVoter: **abstract** Voter;
+|
+|     extinput1: **mapping** input => MyProcess[1].input;
+|     extinput2: **mapping** input => MyProcess[2].input;
+|     extinput3: **mapping** input => MyProcess[3].input;
+|     tovoter1: **connection** MyProcess[1].output -> MyVoter.input[1];
+|     tovoter2: **connection** MyProcess[21].output -> MyVoter.input[2];
+|     tovoter3: **connection** MyProcess[3].output -> MyVoter.input[3];
+|     extoutput: **mapping** output => MyVoter.output ;
+|   **end** ;
+|
+|   **interface** Calculate
+|     input: **in port**;
+|     output: **out port**;
+|   **end** ;
+|
+|   **interface** Voter
+|     input: **in** **data port** [3];
+|     output: **out data port**;
+|   **end**;
+| **end** ;
 
 
 
 Configurations
 --------------
 
-A configuration declaration allow users to configure an existing architecture design by expanding its component hierarchy, but not change it. A configuration declaration can
+A configuration definition allows users to configure an existing architecture design by expanding its component hierarchy, but not change it. 
 
-* assign a component implementation or configuration with previously declared subcomponents down the component hierarchy, which will be used during model instantiation
-* assign a primitive type or component interface to features of components in the component hierarchy
-* associate property values with existing model elements down the component hierarchy
-* associate annex subclauses to classifiers
+A configuration definition consists of
 
-A configuration is declared with respect to a component implementation or another configuration.
+* configuration assignments to assign a component implementation or configuration to previously declared subcomponents in the component hierarchy. It can also assign a primitive type or component interface to features of components in the component hierarchy
+* property associations to assign final property values with existing model elements in the component hierarchy. Final property values cannot be changed
+* binding declarations to bind application components to platform components
+* flow specifications for components and flow sequences across components and connections
+* annex subclause declarations to be associated with components.
 
-A configuration can be parameterized. If a parameterized configuration is assigned to a subcomponent, then the component hierarchy represented by the subcomponent can only be configured through the parameters.
+A configuration is defined in the context of a component interface, component implementation, or other configurations.
 
-!!! Assignment or property values into a parameterized configuration.
+A configuration can be parameterized. In this case the component hierarchy represented by the subcomponents can only be configured through the parameters.
 
 Syntax
 ^^^^^^
 
-| configuration ::=
+| configuration\_definition ::=
 | **configuration** *defining\_*configuration\_name [ configuration\_parameters ] 
-| [ **extends** implementation\_reference  { **,** component\_interface\_reference }\ :sup:`\*` ]
+| [ **extends** implementation\_or\_configuration\_reference  { **,** parameterized\_configuration\_reference }\ :sup:`\*` ]
 | [ **is** configuration\_content ]
 | **end** **;**
 | 
@@ -617,6 +570,8 @@ Syntax
 | parameterized\_configuration\_reference ::= configuration\_reference [ **(** configuration\_actual { **,** configuration\_actual }\ :sup:`\*` **)** ]
 | 
 | configuration\_parameter ::= *defining\_parameter\_*identifier **:** expected\_type\_reference
+| 
+| implementation\_or\_configuration\_reference ::= component\_implementation\_reference \| parameterized\_configuration\_reference
 | 
 | configuration\_content ::= { configuration\_assignment \| property\_association \| mode\_assignment }\ :sup:`\*`
 | 
