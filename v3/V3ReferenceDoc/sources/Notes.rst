@@ -9,6 +9,14 @@ Named interface is a feature. Handle in Feature section. Handled in implementati
 Configuration for interfaces. This implies that they can be associated with all implementations of that interface. Check for top implementation needs to handle the fact that such a configuration does not have one but needs to match interface.
 
 
+Multiple recipients sharing a port: how to model it: 1. separate connection declaration separate from feature mapping. 2. "requires" port access.
+
+Component implementation extension of a single implementation, but possibly an additional interface (extends a.impl, HWInterface
+
+Arrays in configuration assignments.
+
+Access features: for bus, virtual bus, subprogram, subprogram group. Only data as special case due to read/write direction.
+
 Implementation ToDo
 -------------------
 

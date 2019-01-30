@@ -1757,6 +1757,20 @@ Semantics
 Figure − Thread States and Actions
   
 
+** from ports**
+When an aperiodic, sporadic, timed, or hybrid thread
+declares multiple in event and event data ports in its type that can
+be dispatch triggers and more than one of these queues are nonempty,
+the port with the higher Urgency property value gets serviced first.
+If several ports with the same Urgency are non-empty, then the
+Queue\_Processing\_Protocol is applied across these ports and must
+be the same for them. In the case of FIFO the oldest event will be
+serviced (global FIFO). It is permitted to define and use other
+algorithms for picking among multiple non-empty queues. Disciplines
+other than FIFO may be used for managing each individual queue.
+
+
+
 Thread Dispatching
 ~~~~~~~~~~~~~~~~~~
 

@@ -41,15 +41,15 @@ Syntax
 | component\_classifier\_definition ::= 
 |   component\_interface\_definition \| component\_implementation\_definition \| configuration\_definition
 | 
-| wildcard\_package\_reference ::= package\_name  **::\* **
+| wildcard\_package\_reference ::= qualifying\_package  **\* **
 | 
-| component\_classifier\_reference ::= [ package\_qualifier ] component\_classifier\_name
+| component\_classifier\_reference ::= component\_interface\_reference \| component\_implementation\_reference \| component\_configuration\_reference
 | 
-| data\_type\_reference ::= [ package\_qualifier ] data\_type\_name
+| data\_type\_reference ::= [ qualifying\_package ] data\_type\_name
 | 
-| property\_reference ::= [ package\_qualifier ] property\_name
+| property\_reference ::= [ qualifying\_package ] property\_name
 | 
-| package\_qualifier ::= *qualifying\_*package\_name **::**
+| qualifying\_package ::= package\_name **::**
 
 
 
